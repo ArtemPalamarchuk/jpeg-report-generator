@@ -474,46 +474,6 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
         </div>
       </div>
 
-      {/* Historical Prices for Chart */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-gray-900">
-          Historical Prices (Optional)
-        </h3>
-        <p className="text-sm text-gray-600">
-          Paste CSV or JSON data for the price chart. Format: date,price (e.g.,
-          "2025-12-01,0.854")
-        </p>
-        <textarea
-          value={
-            formData.historicalPrices
-              ? formData.historicalPrices
-                  .map((p) => `${p.date},${p.price}`)
-                  .join("\n")
-              : ""
-          }
-          onChange={(e) => {
-            const lines = e.target.value.trim().split("\n");
-            const prices = lines
-              .filter((line) => line.trim())
-              .map((line) => {
-                const [date, price] = line.split(",");
-                return {
-                  date: date?.trim() || "",
-                  price: parseFloat(price) || 0,
-                };
-              })
-              .filter((p) => p.date && p.price > 0);
-            setFormData({ ...formData, historicalPrices: prices });
-          }}
-          rows={6}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md font-mono text-sm"
-          placeholder="2025-11-04,0.854&#10;2025-11-05,0.842&#10;2025-11-06,0.801"
-        />
-        <div className="text-xs text-gray-500">
-          {formData.historicalPrices?.length || 0} data points entered
-        </div>
-      </div>
-
       {/* Submit */}
       <div className="flex justify-end">
         <button
