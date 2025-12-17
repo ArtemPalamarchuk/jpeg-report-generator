@@ -29,7 +29,7 @@ export function parseCSV(csvContent: string): ParsedCSVData {
 
   const exchanges: ExchangeData[] = [];
   let token = "";
-  let headerRow: string[] = [];
+  // let headerRow: string[] = [];
 
   // Find ALL header rows (there might be multiple datasets)
   const headerIndices: number[] = [];
