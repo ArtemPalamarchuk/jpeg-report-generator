@@ -71,25 +71,24 @@ export const generateAndOpenReport = (data: ReportData) => {
       ${htmlContent}
       
       <script>
-        // Add print button
+        // Print button
         const printButton = document.createElement('button');
         printButton.textContent = '🖨️ Print / Save as PDF';
-        printButton.style.cssText = \`
-          position: fixed;
-          top: 20px;
-          right: 20px;
-          padding: 12px 24px;
-          background: #8B9AFD;
-          color: white;
-          border: none;
-          border-radius: 8px;
-          font-family: 'Bai Jamjuree', sans-serif;
-          font-size: 16px;
-          font-weight: 600;
-          cursor: pointer;
-          box-shadow: 0 4px 12px rgba(139, 154, 253, 0.4);
-          z-index: 9999;
-        \`;
+        printButton.style.cssText = 
+          'position: fixed;' +
+          'top: 20px;' +
+          'right: 20px;' +
+          'padding: 12px 24px;' +
+          'background: #8B9AFD;' +
+          'color: white;' +
+          'border: none;' +
+          'border-radius: 8px;' +
+          'font-family: "Bai Jamjuree", sans-serif;' +
+          'font-size: 16px;' +
+          'font-weight: 600;' +
+          'cursor: pointer;' +
+          'box-shadow: 0 4px 12px rgba(139, 154, 253, 0.4);' +
+          'z-index: 9999;';
         
         printButton.addEventListener('mouseover', () => {
           printButton.style.background = '#223FFA';
@@ -105,13 +104,46 @@ export const generateAndOpenReport = (data: ReportData) => {
         
         document.body.appendChild(printButton);
         
-        // Hide button when printing
         window.addEventListener('beforeprint', () => {
           printButton.style.display = 'none';
         });
         
         window.addEventListener('afterprint', () => {
           printButton.style.display = 'block';
+        });
+        
+        window.addEventListener('load', () => {
+          const container = document.querySelector('.report-container');
+          if (!container) return;
+          
+          let totalHeight = 0;
+          const children = container.children;
+          
+          for (let i = 0; i < children.length; i++) {
+            const child = children[i];
+            const style = window.getComputedStyle(child);
+            
+            if (style.position === 'absolute' || style.position === 'fixed') {
+              continue;
+            }
+            
+            const rect = child.getBoundingClientRect();
+            const marginTop = parseFloat(style.marginTop) || 0;
+            const marginBottom = parseFloat(style.marginBottom) || 0;
+            
+            totalHeight += rect.height + marginTop + marginBottom;
+          }
+          
+          const heightMM = Math.ceil(totalHeight * 0.19) + 10;
+          
+          const styleElement = document.createElement('style');
+          styleElement.textContent = 
+            '@media print {' +
+            '  @page { size: 210mm ' + heightMM + 'mm; margin: 0; }' +
+            '  html, body { height: auto; overflow: visible; font-family: "Bai Jamjuree", sans-serif; }' +
+            '  .report-container { max-width: 100%; page-break-after: avoid; }' +
+            '}';
+          document.head.appendChild(styleElement);
         });
       </script>
     </body>

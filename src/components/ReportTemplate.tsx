@@ -80,7 +80,7 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
   const jpegMarketShare =
     globalTotalVolume > 0 ? (jpegTotalVolume / globalTotalVolume) * 100 : 0;
 
-  const formatNumber = (num: number) => {
+  const formatNumber = (num: number | string) => {
     return new Intl.NumberFormat("en-US").format(Math.round(num));
   };
 
@@ -734,11 +734,7 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
         
         /* Print Styles with Page Break Control */
         @media print {
-          @page {
-            size: auto;
-            margin: 0;
-          }
-        
+          /* Dynamic @page size will be injected by JavaScript */
           html,
           body {
             height: auto;
@@ -751,36 +747,13 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
           .report-container {
             max-width: 100%;
             margin: 0 auto;
+            page-break-after: avoid;
           }
           
-          /* Prevent page breaks inside important sections */
-          .header-section,
-          .section-header,
-          .stats-grid,
-          .table-container,
-          .exchange-table,
-          .stat-card,
-          .price-card {
+          /* Keep everything on one page */
+          * {
             page-break-inside: avoid;
             break-inside: avoid;
-          }
-          
-          /* Keep table rows together */
-          .exchange-row,
-          .table-row {
-            page-break-inside: avoid;
-            break-inside: avoid;
-          }
-          
-          /* Prevent orphaned headers */
-          .section-header {
-            page-break-after: avoid;
-            break-after: avoid;
-          }
-          
-          .commentary-title {
-            page-break-after: avoid;
-            break-after: avoid;
           }
         }
       `}</style>
