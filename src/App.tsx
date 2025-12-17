@@ -1,8 +1,14 @@
+import { useState } from "react";
 import DataInputForm from "./components/DataInputForm";
+import CSVUploader from "./components/CSVUploader";
 import { generateAndOpenReport } from "./utils/reportGenerator";
 import type { ReportData } from "./types";
 
+type TabType = "manual" | "csv";
+
 function App() {
+  const [activeTab, setActiveTab] = useState<TabType>("manual");
+
   const handleGenerateReport = (data: ReportData) => {
     generateAndOpenReport(data);
   };
@@ -21,10 +27,40 @@ function App() {
         </div>
       </div>
 
-      {/* Main Form */}
+      {/* Tab Navigation */}
+      <div className="max-w-7xl mx-auto px-4 pt-8">
+        <div className="flex space-x-2 border-b border-gray-200">
+          <button
+            onClick={() => setActiveTab("manual")}
+            className={`px-6 py-3 font-medium text-sm transition-colors ${
+              activeTab === "manual"
+                ? "border-b-2 border-indigo-600 text-indigo-600"
+                : "text-gray-600 hover:text-gray-900"
+            }`}
+          >
+            📝 Manual Input
+          </button>
+          <button
+            onClick={() => setActiveTab("csv")}
+            className={`px-6 py-3 font-medium text-sm transition-colors ${
+              activeTab === "csv"
+                ? "border-b-2 border-indigo-600 text-indigo-600"
+                : "text-gray-600 hover:text-gray-900"
+            }`}
+          >
+            📄 CSV Upload
+          </button>
+        </div>
+      </div>
+
+      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="bg-white rounded-lg shadow-md p-8">
-          <DataInputForm onSubmit={handleGenerateReport} />
+          {activeTab === "manual" ? (
+            <DataInputForm onSubmit={handleGenerateReport} />
+          ) : (
+            <CSVUploader onSubmit={handleGenerateReport} />
+          )}
         </div>
       </div>
 
