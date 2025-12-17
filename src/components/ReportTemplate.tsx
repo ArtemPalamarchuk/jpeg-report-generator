@@ -696,7 +696,43 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
           print-color-adjust: exact;
         }
         
-        /* Print Styles */
+        /* Background decorations */
+        .section-bg-decoration {
+          position: absolute;
+          width: 100%;
+          height: 433px;
+          left: 0;
+          pointer-events: none;
+          opacity: 0.5;
+          z-index: -1;
+        }
+        
+        .section-wrapper {
+          position: relative;
+        }
+        
+        .footer-center {
+          height: 62px;
+          margin-top: -62px;
+          background-color: white;
+          position: relative;
+          z-index: 10;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          width: 100%;
+          border: 1px solid #CCCCCC;
+        }
+        
+        .footer-text {
+          text-transform: uppercase;
+          margin-top: auto; 
+          margin-bottom: 10px;
+          font-size: 18px;
+          font-weight: 600;
+        }
+        
+        /* Print Styles with Page Break Control */
         @media print {
           @page {
             size: auto;
@@ -716,57 +752,37 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
             max-width: 100%;
             margin: 0 auto;
           }
-        
+          
+          /* Prevent page breaks inside important sections */
           .header-section,
           .section-header,
-          .table-row,
-          .exchange-row,
-          .stat-card {
+          .stats-grid,
+          .table-container,
+          .exchange-table,
+          .stat-card,
+          .price-card {
+            page-break-inside: avoid;
             break-inside: avoid;
           }
-        
+          
+          /* Keep table rows together */
+          .exchange-row,
+          .table-row {
+            page-break-inside: avoid;
+            break-inside: avoid;
+          }
+          
+          /* Prevent orphaned headers */
           .section-header {
+            page-break-after: avoid;
+            break-after: avoid;
+          }
+          
+          .commentary-title {
+            page-break-after: avoid;
             break-after: avoid;
           }
         }
-
-        
-        /* Background decorations */
-        .section-bg-decoration {
-          position: absolute;
-          width: 100%;
-          height: 433px;
-          left: 0;
-          pointer-events: none;
-          opacity: 0.5;
-          z-index: -1;
-        }
-        
-        .section-wrapper {
-          position: relative;
-        }
-        
-      .footer-center {
-        height: 62px;
-        margin-top: -62px;
-        background-color: white;
-        position: relative;
-        z-index: 10;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        border: 1px solid #CCCCCC;
-      }
-      .footer-text {
-        text-transform: uppercase;
-        margin-top: auto; 
-        margin-bottom: 10px;
-        font-size: 18px;
-        font-weight: 600;
-      }
-
-        
       `}</style>
 
       {/* Logo Header */}
