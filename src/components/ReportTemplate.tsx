@@ -6,6 +6,201 @@ interface ReportTemplateProps {
   data: ReportData;
 }
 
+// Circular progress component - two-tone style
+const CircularProgress = ({ percentage }: { percentage: number }) => {
+  const size = 56;
+  const strokeWidth = 12;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (percentage / 100) * circumference;
+
+  return (
+    <div
+      className="circular-progress"
+      style={{ width: `${size}px`, height: `${size}px` }}
+    >
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        <circle
+          className="circular-progress-bg"
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          style={{
+            fill: "none",
+            stroke: "#C5CEFF",
+            strokeWidth: strokeWidth,
+          }}
+        />
+        <circle
+          className="circular-progress-fill"
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          style={{
+            fill: "none",
+            stroke: "#6B7FFF",
+            strokeWidth: strokeWidth,
+            strokeLinecap: "round",
+            strokeDasharray: circumference,
+            strokeDashoffset: offset,
+            transform: "rotate(-90deg)",
+            transformOrigin: "50% 50%",
+            transition: "stroke-dashoffset 0.3s ease",
+          }}
+        />
+      </svg>
+    </div>
+  );
+};
+
+// Simple price chart component
+const PriceChart = ({
+  prices,
+}: {
+  prices: Array<{ date: string; price: number }>;
+}) => {
+  if (!prices || prices.length === 0) return null;
+
+  const width = 1130;
+  const height = 400;
+  const padding = 40;
+
+  const chartWidth = width - padding * 2;
+  const chartHeight = height - padding * 2;
+
+  const priceValues = prices.map((p) => p.price);
+  const minPrice = Math.min(...priceValues);
+  const maxPrice = Math.max(...priceValues);
+  const priceRange = maxPrice - minPrice || 1;
+
+  // Create path for line chart
+  const points = prices
+    .map((p, i) => {
+      const x = padding + (i / (prices.length - 1)) * chartWidth;
+      const y =
+        padding +
+        chartHeight -
+        ((p.price - minPrice) / priceRange) * chartHeight;
+      return `${x},${y}`;
+    })
+    .join(" ");
+
+  const pathD = `M ${points.replace(/ /g, " L ")}`;
+
+  // Create gradient fill area
+  const areaD = `${pathD} L ${padding + chartWidth},${padding + chartHeight} L ${padding},${padding + chartHeight} Z`;
+
+  // Calculate vertical grid line positions (about 4-5 vertical lines)
+  const verticalGridCount = 4;
+  const verticalGridPositions = Array.from(
+    { length: verticalGridCount + 1 },
+    (_, i) => i / verticalGridCount,
+  );
+
+  return (
+    <svg
+      width={width}
+      height={height}
+      style={{ display: "block", margin: "0 auto" }}
+    >
+      <defs>
+        <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop
+            offset="0%"
+            style={{ stopColor: "#8B9AFD", stopOpacity: 0.3 }}
+          />
+          <stop
+            offset="100%"
+            style={{ stopColor: "#8B9AFD", stopOpacity: 0 }}
+          />
+        </linearGradient>
+      </defs>
+
+      {/* Horizontal grid lines */}
+      {[0, 0.25, 0.5, 0.75, 1].map((ratio, i) => (
+        <line
+          key={`h-${i}`}
+          x1={padding}
+          y1={padding + chartHeight * ratio}
+          x2={padding + chartWidth}
+          y2={padding + chartHeight * ratio}
+          stroke="#D1D5DB"
+          strokeWidth="1"
+        />
+      ))}
+
+      {/* Vertical grid lines */}
+      {verticalGridPositions.map((ratio, i) => (
+        <line
+          key={`v-${i}`}
+          x1={padding + chartWidth * ratio}
+          y1={padding}
+          x2={padding + chartWidth * ratio}
+          y2={padding + chartHeight}
+          stroke="#D1D5DB"
+          strokeWidth="1"
+        />
+      ))}
+
+      {/* Area fill */}
+      <path d={areaD} fill="url(#chartGradient)" />
+
+      {/* Line */}
+      <path
+        d={pathD}
+        fill="none"
+        stroke="#223FFA"
+        strokeWidth="2"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+
+      {/* Y-axis labels - larger and darker */}
+      {[0, 0.5, 1].map((ratio, i) => {
+        const price = minPrice + priceRange * (1 - ratio);
+        return (
+          <text
+            key={i}
+            x={padding - 10}
+            y={padding + chartHeight * ratio + 5}
+            textAnchor="end"
+            fontSize="14"
+            fontWeight="500"
+            fill="#374151"
+          >
+            ${price.toFixed(3)}
+          </text>
+        );
+      })}
+
+      {/* X-axis labels - larger and darker, more labels */}
+      {verticalGridPositions.map((ratio, i) => {
+        const dateIndex = Math.round(ratio * (prices.length - 1));
+        const datePoint = prices[dateIndex];
+        if (!datePoint) return null;
+
+        return (
+          <text
+            key={`x-label-${i}`}
+            x={padding + chartWidth * ratio}
+            y={height - 10}
+            textAnchor="middle"
+            fontSize="14"
+            fontWeight="500"
+            fill="#374151"
+          >
+            {new Date(datePoint.date).toLocaleDateString("en-US", {
+              month: "2-digit",
+              day: "2-digit",
+              year: "numeric",
+            })}
+          </text>
+        );
+      })}
+    </svg>
+  );
+};
+
 const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
   // Calculate totals
   const totalNotional = data.balances.reduce((sum, b) => sum + b.notional, 0);
@@ -29,7 +224,7 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
       (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24),
     );
 
-    // Generate points with realistic price movement
+    // Generate points with realistic price movement (deterministic)
     for (let i = 0; i <= Math.min(daysDiff, 30); i++) {
       const currentDate = new Date(startDate);
       currentDate.setDate(startDate.getDate() + i);
@@ -39,10 +234,15 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
       const basePrice =
         data.prices.open + (data.prices.close - data.prices.open) * progress;
 
-      // Add some realistic variation using high/low bounds
+      // Add some realistic variation using high/low bounds (deterministic using sin wave)
       const range = data.prices.high - data.prices.low;
+      // Use multiple sine waves with different frequencies for more realistic variation
       const variation =
-        (Math.sin(i * 0.5) * 0.2 + Math.random() * 0.3 - 0.15) * range;
+        (Math.sin(i * 0.5) * 0.3 +
+          Math.sin(i * 0.3) * 0.2 +
+          Math.cos(i * 0.7) * 0.15) *
+        range *
+        0.3;
       const price = Math.max(
         data.prices.low,
         Math.min(data.prices.high, basePrice + variation),
@@ -80,7 +280,7 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
   const jpegMarketShare =
     globalTotalVolume > 0 ? (jpegTotalVolume / globalTotalVolume) * 100 : 0;
 
-  const formatNumber = (num: number | string) => {
+  const formatNumber = (num: number) => {
     return new Intl.NumberFormat("en-US").format(Math.round(num));
   };
 
@@ -108,201 +308,6 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
       minimumFractionDigits: 3,
       maximumFractionDigits: 6,
     }).format(num);
-  };
-
-  // Circular progress component - two-tone style
-  const CircularProgress = ({ percentage }: { percentage: number }) => {
-    const size = 56;
-    const strokeWidth = 12;
-    const radius = (size - strokeWidth) / 2;
-    const circumference = 2 * Math.PI * radius;
-    const offset = circumference - (percentage / 100) * circumference;
-
-    return (
-      <div
-        className="circular-progress"
-        style={{ width: `${size}px`, height: `${size}px` }}
-      >
-        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-          <circle
-            className="circular-progress-bg"
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            style={{
-              fill: "none",
-              stroke: "#C5CEFF",
-              strokeWidth: strokeWidth,
-            }}
-          />
-          <circle
-            className="circular-progress-fill"
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            style={{
-              fill: "none",
-              stroke: "#6B7FFF",
-              strokeWidth: strokeWidth,
-              strokeLinecap: "round",
-              strokeDasharray: circumference,
-              strokeDashoffset: offset,
-              transform: "rotate(-90deg)",
-              transformOrigin: "50% 50%",
-              transition: "stroke-dashoffset 0.3s ease",
-            }}
-          />
-        </svg>
-      </div>
-    );
-  };
-
-  // Simple price chart component
-  const PriceChart = ({
-    prices,
-  }: {
-    prices: Array<{ date: string; price: number }>;
-  }) => {
-    if (!prices || prices.length === 0) return null;
-
-    const width = 1130;
-    const height = 400;
-    const padding = 40;
-
-    const chartWidth = width - padding * 2;
-    const chartHeight = height - padding * 2;
-
-    const priceValues = prices.map((p) => p.price);
-    const minPrice = Math.min(...priceValues);
-    const maxPrice = Math.max(...priceValues);
-    const priceRange = maxPrice - minPrice || 1;
-
-    // Create path for line chart
-    const points = prices
-      .map((p, i) => {
-        const x = padding + (i / (prices.length - 1)) * chartWidth;
-        const y =
-          padding +
-          chartHeight -
-          ((p.price - minPrice) / priceRange) * chartHeight;
-        return `${x},${y}`;
-      })
-      .join(" ");
-
-    const pathD = `M ${points.replace(/ /g, " L ")}`;
-
-    // Create gradient fill area
-    const areaD = `${pathD} L ${padding + chartWidth},${padding + chartHeight} L ${padding},${padding + chartHeight} Z`;
-
-    // Calculate vertical grid line positions (about 4-5 vertical lines)
-    const verticalGridCount = 4;
-    const verticalGridPositions = Array.from(
-      { length: verticalGridCount + 1 },
-      (_, i) => i / verticalGridCount,
-    );
-
-    return (
-      <svg
-        width={width}
-        height={height}
-        style={{ display: "block", margin: "0 auto" }}
-      >
-        <defs>
-          <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop
-              offset="0%"
-              style={{ stopColor: "#8B9AFD", stopOpacity: 0.3 }}
-            />
-            <stop
-              offset="100%"
-              style={{ stopColor: "#8B9AFD", stopOpacity: 0 }}
-            />
-          </linearGradient>
-        </defs>
-
-        {/* Horizontal grid lines */}
-        {[0, 0.25, 0.5, 0.75, 1].map((ratio, i) => (
-          <line
-            key={`h-${i}`}
-            x1={padding}
-            y1={padding + chartHeight * ratio}
-            x2={padding + chartWidth}
-            y2={padding + chartHeight * ratio}
-            stroke="#D1D5DB"
-            strokeWidth="1"
-          />
-        ))}
-
-        {/* Vertical grid lines */}
-        {verticalGridPositions.map((ratio, i) => (
-          <line
-            key={`v-${i}`}
-            x1={padding + chartWidth * ratio}
-            y1={padding}
-            x2={padding + chartWidth * ratio}
-            y2={padding + chartHeight}
-            stroke="#D1D5DB"
-            strokeWidth="1"
-          />
-        ))}
-
-        {/* Area fill */}
-        <path d={areaD} fill="url(#chartGradient)" />
-
-        {/* Line */}
-        <path
-          d={pathD}
-          fill="none"
-          stroke="#223FFA"
-          strokeWidth="2"
-          strokeLinejoin="round"
-          strokeLinecap="round"
-        />
-
-        {/* Y-axis labels - larger and darker */}
-        {[0, 0.5, 1].map((ratio, i) => {
-          const price = minPrice + priceRange * (1 - ratio);
-          return (
-            <text
-              key={i}
-              x={padding - 10}
-              y={padding + chartHeight * ratio + 5}
-              textAnchor="end"
-              fontSize="14"
-              fontWeight="500"
-              fill="#374151"
-            >
-              ${price.toFixed(3)}
-            </text>
-          );
-        })}
-
-        {/* X-axis labels - larger and darker, more labels */}
-        {verticalGridPositions.map((ratio, i) => {
-          const dateIndex = Math.round(ratio * (prices.length - 1));
-          const datePoint = prices[dateIndex];
-          if (!datePoint) return null;
-
-          return (
-            <text
-              key={`x-label-${i}`}
-              x={padding + chartWidth * ratio}
-              y={height - 10}
-              textAnchor="middle"
-              fontSize="14"
-              fontWeight="500"
-              fill="#374151"
-            >
-              {new Date(datePoint.date).toLocaleDateString("en-US", {
-                month: "2-digit",
-                day: "2-digit",
-                year: "numeric",
-              })}
-            </text>
-          );
-        })}
-      </svg>
-    );
   };
 
   return (
