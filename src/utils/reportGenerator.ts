@@ -107,24 +107,31 @@ export const generateAndOpenReport = (data: ReportData) => {
           printButton.style.display = 'block';
         });
         
-        window.addEventListener('load', () => {
-          const container = document.querySelector(".report-container");
-          if (!container) return;
-    
-          const totalHeightPx = Math.ceil(container.getBoundingClientRect().height);
-          const MAGIC_COEFFICIENT = 0.19;
-          // mm ?
-          const totalHeightMm = Math.ceil(totalHeightPx * MAGIC_COEFFICIENT);
-          
-          const styleElement = document.createElement('style');
-          styleElement.textContent = 
-            '@media print {' +
-            '  @page { size: 210mm ' + totalHeightMm + 'mm; margin: 0; }' +
-            '  html, body { height: auto; overflow: visible; font-family: "Bai Jamjuree", sans-serif; }' +
-            '  .report-container { max-width: 100%; page-break-after: avoid; }' +
-            '}';
-          document.head.appendChild(styleElement);
-        });
+   window.addEventListener('load', () => {
+  const container = document.querySelector(".report-container");
+  if (!container) return;
+
+  const totalHeightPx = container.getBoundingClientRect().height;
+  
+  const COMPRESSION_FACTOR = 0.6806; 
+  const PX_TO_MM = 0.2646;
+
+  const adjustedHeightPx = totalHeightPx * COMPRESSION_FACTOR;
+  const heightMm = Math.ceil(adjustedHeightPx * PX_TO_MM);
+  
+  console.log('Original:', totalHeightPx, 'px');
+  console.log('Adjusted:', adjustedHeightPx, 'px');
+  console.log('Final:', heightMm, 'mm');
+  
+  const styleElement = document.createElement('style');
+  styleElement.textContent = 
+    '@media print {' +
+    '  @page { size: 210mm ' + heightMm + 'mm; margin: 0; }' +
+    '  html, body { margin: 0; padding: 0; }' +
+    '  .report-container { margin: 0; padding: 0; }' +
+    '}';
+  document.head.appendChild(styleElement);
+});
       </script>
     </body>
     </html>
