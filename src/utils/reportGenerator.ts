@@ -108,34 +108,18 @@ export const generateAndOpenReport = (data: ReportData) => {
         });
         
         window.addEventListener('load', () => {
-          const container = document.querySelector('.report-container');
+          const container = document.querySelector(".report-container");
           if (!container) return;
-          
-          let totalHeight = 0;
-          const children = container.children;
-          console.log(children.length, 'children.length');
-          for (let i = 0; i < children.length; i++) {
-            const child = children[i];
-            const style = window.getComputedStyle(child);
-            console.log(style.height, style.height);
-            
-            if (style.position === 'absolute' || style.position === 'fixed') {
-              continue;
-            }
-            
-            const rect = child.getBoundingClientRect();
-            const marginTop = parseFloat(style.marginTop) || 0;
-            const marginBottom = parseFloat(style.marginBottom) || 0;
-            
-            totalHeight += rect.height + marginTop + marginBottom;
-          }
-          
-          const heightMM = Math.ceil(totalHeight * 0.19) + 10;
+    
+          const totalHeightPx = Math.ceil(container.getBoundingClientRect().height);
+          const MAGIC_COEFFICIENT = 0.19;
+          // mm ?
+          const totalHeightMm = Math.ceil(totalHeightPx * MAGIC_COEFFICIENT);
           
           const styleElement = document.createElement('style');
           styleElement.textContent = 
             '@media print {' +
-            '  @page { size: 210mm ' + heightMM + 'mm; margin: 0; }' +
+            '  @page { size: 210mm ' + totalHeightMm + 'mm; margin: 0; }' +
             '  html, body { height: auto; overflow: visible; font-family: "Bai Jamjuree", sans-serif; }' +
             '  .report-container { max-width: 100%; page-break-after: avoid; }' +
             '}';
