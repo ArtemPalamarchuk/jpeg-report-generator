@@ -112,9 +112,7 @@ export const generateAndOpenReport = (data: ReportData) => {
     }
 
     // Step 2: Render React component to HTML string
-    const htmlContent = renderToString(
-      React.createElement(ReportTemplate, { data }),
-    );
+    const htmlContent = renderToString(React.createElement(ReportTemplate, { data }));
 
     // Step 3: Build complete HTML document
     const fullHTML = buildHTMLDocument(data, htmlContent);

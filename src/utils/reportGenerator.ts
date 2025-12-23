@@ -31,9 +31,7 @@ export const validateReportData = (data: ReportData): string[] => {
       errors.push(`Exchange #${idx + 1}: JPEG volume cannot be negative`);
     }
     if (exchange.marketShare < 0 || exchange.marketShare > 200) {
-      errors.push(
-        `Exchange #${idx + 1}: Market share must be between 0% and 200%`,
-      );
+      errors.push(`Exchange #${idx + 1}: Market share must be between 0% and 200%`);
     }
   });
 
@@ -50,9 +48,7 @@ export const generateAndOpenReport = (data: ReportData) => {
     }
 
     // Render React component to HTML string
-    const htmlContent = renderToString(
-      React.createElement(ReportTemplate, { data }),
-    );
+    const htmlContent = renderToString(React.createElement(ReportTemplate, { data }));
 
     // Create complete HTML document
     const fullHTML = `
@@ -117,10 +113,11 @@ export const generateAndOpenReport = (data: ReportData) => {
           
           let totalHeight = 0;
           const children = container.children;
-          
+          console.log(children.length, 'children.length');
           for (let i = 0; i < children.length; i++) {
             const child = children[i];
             const style = window.getComputedStyle(child);
+            console.log(style.height, style.height);
             
             if (style.position === 'absolute' || style.position === 'fixed') {
               continue;

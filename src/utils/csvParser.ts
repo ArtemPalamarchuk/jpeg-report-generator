@@ -50,13 +50,10 @@ export function parseCSV(csvContent: string): ParsedCSVData {
 
   // Process each dataset
   headerIndices.forEach((headerIndex, datasetIndex) => {
-    const currentHeaderRow = result.data[headerIndex].map((h) =>
-      h ? h.trim() : "",
-    );
+    const currentHeaderRow = result.data[headerIndex].map((h) => (h ? h.trim() : ""));
 
     // Extract token from rows before THIS header
-    const startSearchIndex =
-      datasetIndex === 0 ? 0 : headerIndices[datasetIndex - 1] + 1;
+    const startSearchIndex = datasetIndex === 0 ? 0 : headerIndices[datasetIndex - 1] + 1;
     let datasetToken = "";
 
     for (let i = startSearchIndex; i < headerIndex; i++) {
@@ -129,14 +126,10 @@ export function parseCSV(csvContent: string): ParsedCSVData {
         jpegVolume: parseNumber(row[colMap["JPEG Volume ($)"] ?? 2] || "0"),
         marketVolume: parseNumber(row[colMap["Market Volume ($)"] ?? 3] || "0"),
         marketShare: parseNumber(row[colMap["% Market Share"] ?? 4] || "0"),
-        liquidity2pct: parseNumber(
-          row[colMap["2% Liquidity Avg ($)"] ?? 5] || "0",
-        ),
+        liquidity2pct: parseNumber(row[colMap["2% Liquidity Avg ($)"] ?? 5] || "0"),
         jpegLiquidity2pct: parseNumber(row[colMap["2% Liquidity"] ?? 6] || "0"),
         liquidityShare: parseNumber(row[colMap["2% Share"] ?? 7] || "0"),
-        liquidity1pct: parseNumber(
-          row[colMap["1% Liquidity Avg ($)"] ?? 8] || "0",
-        ),
+        liquidity1pct: parseNumber(row[colMap["1% Liquidity Avg ($)"] ?? 8] || "0"),
         jpegLiquidity1pct: parseNumber(row[colMap["1% Liquidity"] ?? 9] || "0"),
         share1pct: parseNumber(row[colMap["1% Share"] ?? 10] || "0"),
         avgSpread: parseNumber(row[colMap["Avg Spread (bps)"] ?? 11] || "0"),

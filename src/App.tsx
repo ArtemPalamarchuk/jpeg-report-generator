@@ -18,12 +18,8 @@ function App() {
       {/* Header */}
       <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-8 shadow-lg">
         <div className="max-w-7xl mx-auto px-4">
-          <h1 className="text-4xl font-bold mb-2">
-            Monthly Liquidity Report Generator
-          </h1>
-          <p className="text-indigo-100">
-            Create professional PDF reports for your trading data
-          </p>
+          <h1 className="text-4xl font-bold mb-2">Monthly Liquidity Report Generator</h1>
+          <p className="text-indigo-100">Create professional PDF reports for your trading data</p>
         </div>
       </div>
 

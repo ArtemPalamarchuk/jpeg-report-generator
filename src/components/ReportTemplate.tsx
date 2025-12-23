@@ -6,7 +6,6 @@ interface ReportTemplateProps {
   data: ReportData;
 }
 
-// Circular progress component - two-tone style
 const CircularProgress = ({ percentage }: { percentage: number }) => {
   const size = 56;
   const strokeWidth = 12;
@@ -15,10 +14,7 @@ const CircularProgress = ({ percentage }: { percentage: number }) => {
   const offset = circumference - (percentage / 100) * circumference;
 
   return (
-    <div
-      className="circular-progress"
-      style={{ width: `${size}px`, height: `${size}px` }}
-    >
+    <div className="circular-progress" style={{ width: `${size}px`, height: `${size}px` }}>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         <circle
           className="circular-progress-bg"
@@ -53,12 +49,7 @@ const CircularProgress = ({ percentage }: { percentage: number }) => {
   );
 };
 
-// Simple price chart component
-const PriceChart = ({
-  prices,
-}: {
-  prices: Array<{ date: string; price: number }>;
-}) => {
+const PriceChart = ({ prices }: { prices: Array<{ date: string; price: number }> }) => {
   if (!prices || prices.length === 0) return null;
 
   const width = 1130;
@@ -77,10 +68,7 @@ const PriceChart = ({
   const points = prices
     .map((p, i) => {
       const x = padding + (i / (prices.length - 1)) * chartWidth;
-      const y =
-        padding +
-        chartHeight -
-        ((p.price - minPrice) / priceRange) * chartHeight;
+      const y = padding + chartHeight - ((p.price - minPrice) / priceRange) * chartHeight;
       return `${x},${y}`;
     })
     .join(" ");
@@ -98,21 +86,11 @@ const PriceChart = ({
   );
 
   return (
-    <svg
-      width={width}
-      height={height}
-      style={{ display: "block", margin: "0 auto" }}
-    >
+    <svg width={width} height={height} style={{ display: "block", margin: "0 auto" }}>
       <defs>
         <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop
-            offset="0%"
-            style={{ stopColor: "#8B9AFD", stopOpacity: 0.3 }}
-          />
-          <stop
-            offset="100%"
-            style={{ stopColor: "#8B9AFD", stopOpacity: 0 }}
-          />
+          <stop offset="0%" style={{ stopColor: "#8B9AFD", stopOpacity: 0.3 }} />
+          <stop offset="100%" style={{ stopColor: "#8B9AFD", stopOpacity: 0 }} />
         </linearGradient>
       </defs>
 
@@ -201,6 +179,34 @@ const PriceChart = ({
   );
 };
 
+const BackgroundDecoration = () => (
+  <div
+    style={{
+      position: "absolute",
+      left: 0,
+      width: "100%",
+      height: "294px",
+      marginTop: "-147px",
+      overflow: "visible",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      pointerEvents: "none",
+      zIndex: 0,
+    }}
+  >
+    <img
+      src={images.bgSvg}
+      alt=""
+      style={{
+        width: "1265px",
+        height: "294px",
+        opacity: 0.5,
+      }}
+    />
+  </div>
+);
+
 const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
   // Calculate totals
   const totalNotional = data.balances.reduce((sum, b) => sum + b.notional, 0);
@@ -220,9 +226,7 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
     startDate.setMonth(startDate.getMonth() - 1);
 
     const points: Array<{ date: string; price: number }> = [];
-    const daysDiff = Math.ceil(
-      (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24),
-    );
+    const daysDiff = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
 
     // Generate points with realistic price movement (deterministic)
     for (let i = 0; i <= Math.min(daysDiff, 30); i++) {
@@ -231,22 +235,16 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
 
       // Interpolate price between open and close with some variation
       const progress = i / Math.min(daysDiff, 30);
-      const basePrice =
-        data.prices.open + (data.prices.close - data.prices.open) * progress;
+      const basePrice = data.prices.open + (data.prices.close - data.prices.open) * progress;
 
       // Add some realistic variation using high/low bounds (deterministic using sin wave)
       const range = data.prices.high - data.prices.low;
       // Use multiple sine waves with different frequencies for more realistic variation
       const variation =
-        (Math.sin(i * 0.5) * 0.3 +
-          Math.sin(i * 0.3) * 0.2 +
-          Math.cos(i * 0.7) * 0.15) *
+        (Math.sin(i * 0.5) * 0.3 + Math.sin(i * 0.3) * 0.2 + Math.cos(i * 0.7) * 0.15) *
         range *
         0.3;
-      const price = Math.max(
-        data.prices.low,
-        Math.min(data.prices.high, basePrice + variation),
-      );
+      const price = Math.max(data.prices.low, Math.min(data.prices.high, basePrice + variation));
 
       points.push({
         date: currentDate.toISOString().split("T")[0],
@@ -261,24 +259,15 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
 
   // Calculate summary statistics
   const globalAvgLiquidity =
-    data.exchanges.reduce((sum, e) => sum + e.liquidity2pct, 0) /
-    data.exchanges.length;
+    data.exchanges.reduce((sum, e) => sum + e.liquidity2pct, 0) / data.exchanges.length;
   const jpegAvgLiquidity =
-    data.exchanges.reduce((sum, e) => sum + e.jpegLiquidity2pct, 0) /
-    data.exchanges.length;
+    data.exchanges.reduce((sum, e) => sum + e.jpegLiquidity2pct, 0) / data.exchanges.length;
   const jpegLiquidityShare =
     globalAvgLiquidity > 0 ? (jpegAvgLiquidity / globalAvgLiquidity) * 100 : 0;
 
-  const globalTotalVolume = data.exchanges.reduce(
-    (sum, e) => sum + e.marketVolume,
-    0,
-  );
-  const jpegTotalVolume = data.exchanges.reduce(
-    (sum, e) => sum + e.jpegVolume,
-    0,
-  );
-  const jpegMarketShare =
-    globalTotalVolume > 0 ? (jpegTotalVolume / globalTotalVolume) * 100 : 0;
+  const globalTotalVolume = data.exchanges.reduce((sum, e) => sum + e.marketVolume, 0);
+  const jpegTotalVolume = data.exchanges.reduce((sum, e) => sum + e.jpegVolume, 0);
+  const jpegMarketShare = globalTotalVolume > 0 ? (jpegTotalVolume / globalTotalVolume) * 100 : 0;
 
   const formatNumber = (num: number) => {
     return new Intl.NumberFormat("en-US").format(Math.round(num));
@@ -435,6 +424,25 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
           font-size: 18px;
           line-height: 22px;
           color: white;
+        }
+        
+        .balances-section {
+          padding: 0 36px;
+          margin-bottom: 120px;
+        }
+        
+        .liquidity-statistics {
+          padding: 0 36px;
+          margin-bottom: 120px;
+        }
+        
+        .volume-statistics {
+          padding: 0 36px;
+          margin-bottom: 120px;
+        }
+        
+        .reporting-prices {
+          padding: 0 36px 60px 36px;
         }
         
         /* Section Headers */
@@ -625,7 +633,6 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
         /* Exchange Table - same style as Balances table */
         .exchange-table {
           background: white;
-          margin-bottom: 20px;
           position: relative;
           z-index: 1;
         }
@@ -763,180 +770,79 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
         }
       `}</style>
 
-      {/* Logo Header */}
+      {/* Logo */}
       <div className="logo-header">
         <img src={images.logo} alt="JPEG Trading" />
       </div>
 
-      {/* Header and Balances */}
-      <div>
-        <div
-          style={{
-            position: "absolute",
-            left: 0,
-            width: "100%",
-            height: "294px",
-            marginTop: "-147px",
-            overflow: "visible",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            pointerEvents: "none",
-            zIndex: 1,
-          }}
-        >
-          <img
-            src={images.bgSvg}
-            alt=""
-            style={{
-              width: "1265px",
-              height: "294px",
-              opacity: 0.5,
-            }}
-          />
-        </div>
-        <div className="header-section">
-          <div className="header-left">
-            <div className="date-badge">
-              <div className="date-text">
-                {new Date(data.date).toLocaleDateString("en-US", {
-                  month: "2-digit",
-                  day: "2-digit",
-                  year: "numeric",
-                })}
-              </div>
+      {/* Header */}
+      <div className="header-section">
+        <div className="header-left">
+          <div className="date-badge">
+            <div className="date-text">
+              {new Date(data.date).toLocaleDateString("en-US", {
+                month: "2-digit",
+                day: "2-digit",
+                year: "numeric",
+              })}
             </div>
-
-            <h1 className="main-title">
-              Monthly Liquidity Report for{" "}
-              <span className="token-name">{data.token}</span>
-            </h1>
-
-            {/* Decorative lines SVG */}
-            <img
-              src={images.headerDecorativeLines}
-              alt=""
-              className="decorative-lines"
-            />
-          </div>
-          <div className="header-right">
-            <h2 className="commentary-title">
-              Commentary from the JPEG Trading team
-            </h2>
-            <p className="commentary-text">{data.commentary}</p>
-          </div>
-        </div>
-
-        {/* Background decoration - ABSOLUTE positioned */}
-        <div
-          style={{
-            position: "absolute",
-            left: 0,
-            width: "100%",
-            height: "294px",
-            marginTop: "-147px",
-            overflow: "visible",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            pointerEvents: "none",
-            zIndex: 0,
-          }}
-        >
-          <img
-            src={images.bgSvg}
-            alt=""
-            style={{
-              width: "1265px",
-              height: "294px",
-              opacity: 0.5,
-            }}
-          />
-        </div>
-
-        {/* Balances Section */}
-        <div
-          style={{
-            padding: "0 36px",
-            marginTop: "120px",
-            marginBottom: "120px",
-          }}
-        >
-          <div className="section-header">
-            <div className="section-number">1</div>
-            <div className="section-title">Balances</div>
           </div>
 
-          <div className="table-container">
-            <div className="table-header">
-              <div className="table-header-cell">Asset</div>
-              <div className="table-header-cell">Price</div>
-              <div className="table-header-cell">Amount</div>
-              <div className="table-header-cell right">Notional</div>
-            </div>
+          <h1 className="main-title">
+            Monthly Liquidity Report for <span className="token-name">{data.token}</span>
+          </h1>
 
-            {data.balances.map((balance, idx) => (
-              <div key={idx} className="table-row">
-                <div className="table-cell">{balance.asset}</div>
-                <div className="table-cell">{formatPrice(balance.price)}</div>
-                <div className="table-cell">{formatNumber(balance.amount)}</div>
-                <div className="table-cell right">
-                  {formatCurrency(balance.notional)}
-                </div>
-              </div>
-            ))}
+          {/* Decorative lines SVG */}
+          <img src={images.headerDecorativeLines} alt="" className="decorative-lines" />
+        </div>
+        <div className="header-right">
+          <h2 className="commentary-title">Commentary from the JPEG Trading team</h2>
+          <p className="commentary-text">{data.commentary}</p>
+        </div>
+      </div>
 
-            <div className="table-footer">
-              <div className="table-footer-cell">Sum</div>
-              <div className="table-footer-cell"></div>
-              <div className="table-footer-cell"></div>
-              <div className="table-footer-value">
-                {formatCurrency(totalNotional)}
-              </div>
+      {/* Balances */}
+      <div className="balances-section">
+        <div className="section-header">
+          <div className="section-number">1</div>
+          <div className="section-title">Balances</div>
+        </div>
+
+        <div className="table-container">
+          <div className="table-header">
+            <div className="table-header-cell">Asset</div>
+            <div className="table-header-cell">Price</div>
+            <div className="table-header-cell">Amount</div>
+            <div className="table-header-cell right">Notional</div>
+          </div>
+
+          {data.balances.map((balance, idx) => (
+            <div key={idx} className="table-row">
+              <div className="table-cell">{balance.asset}</div>
+              <div className="table-cell">{formatPrice(balance.price)}</div>
+              <div className="table-cell">{formatNumber(balance.amount)}</div>
+              <div className="table-cell right">{formatCurrency(balance.notional)}</div>
             </div>
+          ))}
+
+          <div className="table-footer">
+            <div className="table-footer-cell">Sum</div>
+            <div className="table-footer-cell"></div>
+            <div className="table-footer-cell"></div>
+            <div className="table-footer-value">{formatCurrency(totalNotional)}</div>
           </div>
         </div>
       </div>
 
-      {/* Background decoration - ABSOLUTE positioned */}
-      <div
-        style={{
-          position: "absolute",
-          left: 0,
-          width: "100%",
-          height: "294px",
-          marginTop: "-147px",
-          overflow: "visible",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          pointerEvents: "none",
-          zIndex: 0,
-        }}
-      >
-        <img
-          src={images.bgSvg}
-          alt=""
-          style={{
-            width: "1265px",
-            height: "294px",
-            opacity: 0.5,
-          }}
-        />
-      </div>
-
-      {/* Liquidity & Volume Statistics */}
-      <div style={{ padding: "0 36px", marginTop: "120px" }}>
-        <div className="section-header" style={{ marginBottom: "20px" }}>
+      {/* Liquidity Statistics */}
+      <div className="liquidity-statistics">
+        <div className="section-header">
           <div className="section-number">2</div>
           <div className="section-title">Liquidity Statistics</div>
         </div>
-
         <div className="stats-grid">
           <div className="stat-card">
-            <div className="stat-value">
-              {formatCurrency(globalAvgLiquidity)}
-            </div>
+            <div className="stat-value">{formatCurrency(globalAvgLiquidity)}</div>
             <div className="stat-label">Global Avg. Liquidity</div>
           </div>
           <div className="stat-card">
@@ -948,7 +854,6 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
             <div className="stat-label">JPEG Liquidity Share</div>
           </div>
         </div>
-
         <div className="exchange-table">
           <div className="exchange-header">
             <div className="exchange-header-cell">Venue</div>
@@ -960,12 +865,8 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
           {data.exchanges.map((exchange, idx) => (
             <div key={idx} className="exchange-row">
               <div className="exchange-cell">{exchange.venue}</div>
-              <div className="exchange-cell">
-                {formatCurrency(exchange.liquidity2pct)}
-              </div>
-              <div className="exchange-cell">
-                {formatCurrency(exchange.jpegLiquidity2pct)}
-              </div>
+              <div className="exchange-cell">{formatCurrency(exchange.liquidity2pct)}</div>
+              <div className="exchange-cell">{formatCurrency(exchange.jpegLiquidity2pct)}</div>
               <div className="exchange-cell with-indicator">
                 <span>{exchange.liquidityShare.toFixed(2)}%</span>
                 <CircularProgress percentage={exchange.liquidityShare} />
@@ -973,47 +874,17 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
             </div>
           ))}
         </div>
+      </div>
 
-        {/* Background decoration - ABSOLUTE positioned */}
-        <div
-          style={{
-            position: "absolute",
-            left: 0,
-            width: "100%",
-            height: "294px",
-            marginTop: "-147px",
-            overflow: "visible",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            pointerEvents: "none",
-            zIndex: 0,
-          }}
-        >
-          <img
-            src={images.bgSvg}
-            alt=""
-            style={{
-              width: "1265px",
-              height: "294px",
-              opacity: 0.5,
-            }}
-          />
-        </div>
-
-        <div
-          className="section-header"
-          style={{ marginBottom: "20px", marginTop: "120px" }}
-        >
+      {/* Volume Statistics */}
+      <div className="volume-statistics">
+        <div className="section-header">
           <div className="section-number">3</div>
           <div className="section-title">Volume Statistics</div>
         </div>
-
         <div className="stats-grid">
           <div className="stat-card">
-            <div className="stat-value">
-              {formatCurrency(globalTotalVolume)}
-            </div>
+            <div className="stat-value">{formatCurrency(globalTotalVolume)}</div>
             <div className="stat-label">Global Total Volume</div>
           </div>
           <div className="stat-card">
@@ -1025,7 +896,6 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
             <div className="stat-label">JPEG Market Share</div>
           </div>
         </div>
-
         <div className="exchange-table">
           <div className="exchange-header">
             <div className="exchange-header-cell">Venue</div>
@@ -1037,12 +907,8 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
           {data.exchanges.map((exchange, idx) => (
             <div key={idx} className="exchange-row">
               <div className="exchange-cell">{exchange.venue}</div>
-              <div className="exchange-cell">
-                {formatCurrency(exchange.marketVolume)}
-              </div>
-              <div className="exchange-cell">
-                {formatCurrency(exchange.jpegVolume)}
-              </div>
+              <div className="exchange-cell">{formatCurrency(exchange.marketVolume)}</div>
+              <div className="exchange-cell">{formatCurrency(exchange.jpegVolume)}</div>
               <div className="exchange-cell with-indicator">
                 <span>{exchange.marketShare.toFixed(2)}%</span>
                 <CircularProgress percentage={exchange.marketShare} />
@@ -1052,20 +918,14 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
         </div>
       </div>
 
-      {/* Spacing between Volume and Reporting Prices */}
-      <div style={{ height: "120px" }}></div>
-
       {/* Reporting Prices */}
-      <div style={{ padding: "0 36px 60px 36px" }}>
-        <div className="section-header" style={{ marginBottom: "20px" }}>
+      <div className="reporting-prices">
+        <div className="section-header">
           <div className="section-number">4</div>
           <div className="section-title">Reporting Prices</div>
         </div>
 
-        <div
-          className="stats-grid"
-          style={{ gridTemplateColumns: "repeat(4, 1fr)" }}
-        >
+        <div className="stats-grid" style={{ gridTemplateColumns: "repeat(4, 1fr)" }}>
           <div className="price-card">
             <div className="stat-value">{formatPrice(data.prices.open)}</div>
             <div className="stat-label">Open Price</div>
@@ -1101,15 +961,9 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
         }}
       />
       <div className="footer-center" style={{ gap: "16px" }}>
-        <div
-          style={{ width: "1px", height: "100%", backgroundColor: "#CCCCCC" }}
-        />
-        <span className="footer-text">
-          © 2025 JPEG Trading. All rights reserved.
-        </span>
-        <div
-          style={{ width: "1px", height: "100%", backgroundColor: "#CCCCCC" }}
-        />
+        <div style={{ width: "1px", height: "100%", backgroundColor: "#CCCCCC" }} />
+        <span className="footer-text">© 2025 JPEG Trading. All rights reserved.</span>
+        <div style={{ width: "1px", height: "100%", backgroundColor: "#CCCCCC" }} />
       </div>
     </div>
   );

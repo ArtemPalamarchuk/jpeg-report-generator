@@ -7,8 +7,7 @@ interface DataInputFormProps {
 }
 
 function DataInputForm({ onSubmit }: DataInputFormProps) {
-  const [formData, setFormData] =
-    useState<Partial<ReportData>>(emptyReportData);
+  const [formData, setFormData] = useState<Partial<ReportData>>(emptyReportData);
 
   const loadExampleData = () => {
     setFormData(exampleReportData);
@@ -21,11 +20,7 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
     }
   };
 
-  const updateBalance = (
-    index: number,
-    field: keyof Balance,
-    value: string | number,
-  ) => {
+  const updateBalance = (index: number, field: keyof Balance, value: string | number) => {
     const newBalances = [...(formData.balances || [])];
     newBalances[index] = {
       ...newBalances[index],
@@ -34,8 +29,7 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
 
     // Auto-calculate notional
     if (field === "price" || field === "amount") {
-      newBalances[index].notional =
-        newBalances[index].price * newBalances[index].amount;
+      newBalances[index].notional = newBalances[index].price * newBalances[index].amount;
     }
 
     setFormData({ ...formData, balances: newBalances });
@@ -81,11 +75,7 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
     });
   };
 
-  const updateExchange = (
-    index: number,
-    field: keyof ExchangeData,
-    value: string | number,
-  ) => {
+  const updateExchange = (index: number, field: keyof ExchangeData, value: string | number) => {
     const newExchanges = [...(formData.exchanges || [])];
     newExchanges[index] = {
       ...newExchanges[index],
@@ -99,17 +89,13 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
     if (field === "jpegVolume" || field === "marketVolume") {
       newExchanges[index].marketShare =
         newExchanges[index].marketVolume > 0
-          ? (newExchanges[index].jpegVolume /
-              newExchanges[index].marketVolume) *
-            100
+          ? (newExchanges[index].jpegVolume / newExchanges[index].marketVolume) * 100
           : 0;
     }
     if (field === "jpegLiquidity2pct" || field === "liquidity2pct") {
       newExchanges[index].liquidityShare =
         newExchanges[index].liquidity2pct > 0
-          ? (newExchanges[index].jpegLiquidity2pct /
-              newExchanges[index].liquidity2pct) *
-            100
+          ? (newExchanges[index].jpegLiquidity2pct / newExchanges[index].liquidity2pct) * 100
           : 0;
     }
 
@@ -132,9 +118,7 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
       {/* Basic Info */}
       <div className="space-y-4">
         <div className="flex justify-between items-center">
-          <h3 className="text-lg font-semibold text-gray-900">
-            Basic Information
-          </h3>
+          <h3 className="text-lg font-semibold text-gray-900">Basic Information</h3>
           <button
             type="button"
             onClick={loadExampleData}
@@ -145,43 +129,31 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Token Name
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Token Name</label>
             <input
               type="text"
               value={formData.token || ""}
-              onChange={(e) =>
-                setFormData({ ...formData, token: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, token: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Report Date
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Report Date</label>
             <input
               type="date"
               value={formData.date || ""}
-              onChange={(e) =>
-                setFormData({ ...formData, date: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
               required
             />
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Commentary
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Commentary</label>
           <textarea
             value={formData.commentary || ""}
-            onChange={(e) =>
-              setFormData({ ...formData, commentary: e.target.value })
-            }
+            onChange={(e) => setFormData({ ...formData, commentary: e.target.value })}
             rows={6}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
             placeholder="Enter commentary about market conditions and strategy..."
@@ -202,14 +174,9 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
           </button>
         </div>
         {formData.balances?.map((balance, index) => (
-          <div
-            key={index}
-            className="grid grid-cols-4 gap-4 p-4 bg-gray-50 rounded-md relative"
-          >
+          <div key={index} className="grid grid-cols-4 gap-4 p-4 bg-gray-50 rounded-md relative">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Asset
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Asset</label>
               <input
                 type="text"
                 value={balance.asset}
@@ -218,9 +185,7 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Price
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Price</label>
               <input
                 type="number"
                 step="0.000001"
@@ -230,9 +195,7 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Amount
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
               <input
                 type="number"
                 value={balance.amount}
@@ -241,9 +204,7 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Notional
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Notional</label>
               <input
                 type="number"
                 value={balance.notional.toFixed(2)}
@@ -280,14 +241,9 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
 
         <div className="space-y-4">
           {formData.exchanges?.map((exchange, index) => (
-            <div
-              key={index}
-              className="p-4 bg-gray-50 rounded-md border border-gray-200"
-            >
+            <div key={index} className="p-4 bg-gray-50 rounded-md border border-gray-200">
               <div className="flex justify-between items-center mb-3">
-                <h4 className="font-medium text-gray-700">
-                  Exchange #{index + 1}
-                </h4>
+                <h4 className="font-medium text-gray-700">Exchange #{index + 1}</h4>
                 {(formData.exchanges?.length || 0) > 1 && (
                   <button
                     type="button"
@@ -301,15 +257,11 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">
-                    Venue
-                  </label>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Venue</label>
                   <input
                     type="text"
                     value={exchange.venue}
-                    onChange={(e) =>
-                      updateExchange(index, "venue", e.target.value)
-                    }
+                    onChange={(e) => updateExchange(index, "venue", e.target.value)}
                     className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
                     placeholder="e.g., Bitget"
                   />
@@ -321,9 +273,7 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
                   <input
                     type="number"
                     value={exchange.jpegVolume}
-                    onChange={(e) =>
-                      updateExchange(index, "jpegVolume", e.target.value)
-                    }
+                    onChange={(e) => updateExchange(index, "jpegVolume", e.target.value)}
                     className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
                   />
                 </div>
@@ -334,9 +284,7 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
                   <input
                     type="number"
                     value={exchange.marketVolume}
-                    onChange={(e) =>
-                      updateExchange(index, "marketVolume", e.target.value)
-                    }
+                    onChange={(e) => updateExchange(index, "marketVolume", e.target.value)}
                     className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
                   />
                 </div>
@@ -347,9 +295,7 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
                   <input
                     type="number"
                     value={exchange.jpegLiquidity2pct}
-                    onChange={(e) =>
-                      updateExchange(index, "jpegLiquidity2pct", e.target.value)
-                    }
+                    onChange={(e) => updateExchange(index, "jpegLiquidity2pct", e.target.value)}
                     className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
                   />
                 </div>
@@ -360,9 +306,7 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
                   <input
                     type="number"
                     value={exchange.liquidity2pct}
-                    onChange={(e) =>
-                      updateExchange(index, "liquidity2pct", e.target.value)
-                    }
+                    onChange={(e) => updateExchange(index, "liquidity2pct", e.target.value)}
                     className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
                   />
                 </div>
@@ -373,9 +317,7 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
                   <input
                     type="number"
                     value={exchange.avgSpread}
-                    onChange={(e) =>
-                      updateExchange(index, "avgSpread", e.target.value)
-                    }
+                    onChange={(e) => updateExchange(index, "avgSpread", e.target.value)}
                     className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
                   />
                 </div>
@@ -387,14 +329,10 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
 
       {/* Prices */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-gray-900">
-          Reporting Prices
-        </h3>
+        <h3 className="text-lg font-semibold text-gray-900">Reporting Prices</h3>
         <div className="grid grid-cols-4 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Open
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Open</label>
             <input
               type="number"
               step="0.000001"
@@ -412,9 +350,7 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              High
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">High</label>
             <input
               type="number"
               step="0.000001"
@@ -432,9 +368,7 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Low
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Low</label>
             <input
               type="number"
               step="0.000001"
@@ -452,9 +386,7 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Close
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Close</label>
             <input
               type="number"
               step="0.000001"

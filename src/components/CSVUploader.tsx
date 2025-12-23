@@ -10,9 +10,7 @@ function CSVUploader({ onSubmit }: CSVUploaderProps) {
   const [file, setFile] = useState<File | null>(null);
   const [reportData, setReportData] = useState<ReportData | null>(null);
   const [error, setError] = useState<string>("");
-  const [date, setDate] = useState<string>(
-    new Date().toISOString().split("T")[0],
-  );
+  const [date, setDate] = useState<string>(new Date().toISOString().split("T")[0]);
   const [commentary, setCommentary] = useState<string>("");
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,9 +72,7 @@ function CSVUploader({ onSubmit }: CSVUploaderProps) {
       {/* File Upload Section */}
       <div className="space-y-4">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Upload CSV File
-          </h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Upload CSV File</h3>
           <div className="flex items-center space-x-4">
             <label className="flex-1">
               <input
@@ -107,9 +103,7 @@ function CSVUploader({ onSubmit }: CSVUploaderProps) {
           <div className="space-y-4 pt-4 border-t border-gray-200">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Report Date
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Report Date</label>
                 <input
                   type="date"
                   value={date}
@@ -119,9 +113,7 @@ function CSVUploader({ onSubmit }: CSVUploaderProps) {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Token
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Token</label>
                 <input
                   type="text"
                   value={reportData.token}
@@ -132,9 +124,7 @@ function CSVUploader({ onSubmit }: CSVUploaderProps) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Commentary
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Commentary</label>
               <textarea
                 value={commentary}
                 onChange={(e) => handleCommentaryChange(e.target.value)}
@@ -198,17 +188,13 @@ function CSVUploader({ onSubmit }: CSVUploaderProps) {
                       ${exchange.marketVolume.toLocaleString()}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-sm text-right text-gray-600">
-                      {exchange.marketShare > 0
-                        ? `${exchange.marketShare.toFixed(2)}%`
-                        : "-"}
+                      {exchange.marketShare > 0 ? `${exchange.marketShare.toFixed(2)}%` : "-"}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-sm text-right text-gray-900">
                       ${exchange.liquidity2pct.toLocaleString()}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-sm text-right text-gray-600">
-                      {exchange.avgSpread > 0
-                        ? exchange.avgSpread.toLocaleString()
-                        : "-"}
+                      {exchange.avgSpread > 0 ? exchange.avgSpread.toLocaleString() : "-"}
                     </td>
                   </tr>
                 ))}
@@ -231,13 +217,10 @@ function CSVUploader({ onSubmit }: CSVUploaderProps) {
       {/* Instructions */}
       {!reportData && (
         <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
-          <h4 className="text-sm font-medium text-blue-900 mb-2">
-            CSV Format Requirements:
-          </h4>
+          <h4 className="text-sm font-medium text-blue-900 mb-2">CSV Format Requirements:</h4>
           <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
             <li>
-              File must contain headers: Exchange, Symbol, JPEG Volume ($),
-              Market Volume ($), etc.
+              File must contain headers: Exchange, Symbol, JPEG Volume ($), Market Volume ($), etc.
             </li>
             <li>Numbers can include $ signs and commas (e.g., "$180,524")</li>
             <li>Empty rows will be skipped automatically</li>
