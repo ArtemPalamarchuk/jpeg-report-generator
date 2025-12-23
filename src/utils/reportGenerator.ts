@@ -3,7 +3,6 @@ import React from "react";
 import ReportTemplate from "../components/ReportTemplate";
 import type { ReportData } from "../types";
 
-// Validate report data before generation
 const validateReportData = (data: ReportData): string[] => {
   const errors: string[] = [];
 
@@ -167,36 +166,4 @@ export const generateAndOpenReport = (data: ReportData) => {
         (error instanceof Error ? error.message : String(error)),
     );
   }
-};
-
-// Alternative: Download as HTML file
-export const downloadReportHTML = (data: ReportData) => {
-  const htmlContent = renderToString(
-    React.createElement(ReportTemplate, { data }),
-  );
-
-  const fullHTML = `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Monthly Liquidity Report - ${data.token} - ${data.date}</title>
-      <link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    </head>
-    <body>
-      ${htmlContent}
-    </body>
-    </html>
-  `;
-
-  const blob = new Blob([fullHTML], { type: "text/html" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `liquidity-report-${data.token}-${data.date}.html`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
 };
