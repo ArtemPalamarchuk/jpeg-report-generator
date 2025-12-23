@@ -3,7 +3,7 @@ import React from "react";
 import ReportTemplate from "../components/ReportTemplate";
 import type { ReportData } from "../types";
 
-const validateReportData = (data: ReportData): string[] => {
+export const validateReportData = (data: ReportData): string[] => {
   const errors: string[] = [];
 
   if (!data.token) errors.push("Token name is required");
