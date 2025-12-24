@@ -207,10 +207,8 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
 
   const historicalPrices = getHistoricalPrices();
 
-  const globalAvgLiquidity =
-    data.exchanges.reduce((sum, e) => sum + e.liquidity2pct, 0) / data.exchanges.length;
-  const jpegAvgLiquidity =
-    data.exchanges.reduce((sum, e) => sum + e.jpegLiquidity2pct, 0) / data.exchanges.length;
+  const globalAvgLiquidity = data.exchanges.reduce((sum, e) => sum + e.liquidity2pct, 0);
+  const jpegAvgLiquidity = data.exchanges.reduce((sum, e) => sum + e.jpegLiquidity2pct, 0);
   const jpegLiquidityShare =
     globalAvgLiquidity > 0 ? (jpegAvgLiquidity / globalAvgLiquidity) * 100 : 0;
 
@@ -695,6 +693,7 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
             <div className="stat-label">JPEG Liquidity Share</div>
           </div>
         </div>
+
         <div className="exchange-table">
           <div className="exchange-header">
             <div className="exchange-header-cell">Venue</div>
