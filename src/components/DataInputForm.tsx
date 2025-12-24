@@ -13,10 +13,39 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
     setFormData(exampleReportData);
   };
 
+  const handleNumericInput = (value: string): string => {
+    const normalized = value.replace(",", ".");
+    if (/^\d*\.?\d*$/.test(normalized) || normalized === "") {
+      return normalized;
+    }
+    return value;
+  };
+
+  const formatNumericValue = (value: string): string => {
+    if (value && !isNaN(parseFloat(value))) {
+      return parseFloat(value).toString();
+    }
+    return value;
+  };
+
+  const handleNumericChange = (index: number, field: "price" | "amount", value: string) => {
+    const normalized = handleNumericInput(value);
+    updateBalance(index, field, normalized);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.token && formData.date) {
-      onSubmit(formData as ReportData);
+      const dataToSubmit = {
+        ...formData,
+        balances: formData.balances?.map((b) => ({
+          asset: b.asset,
+          price: typeof b.price === "string" ? parseFloat(b.price) || 0 : b.price,
+          amount: typeof b.amount === "string" ? parseFloat(b.amount) || 0 : b.amount,
+          notional: b.notional,
+        })),
+      };
+      onSubmit(dataToSubmit as ReportData);
     }
   };
 
@@ -24,12 +53,13 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
     const newBalances = [...(formData.balances || [])];
     newBalances[index] = {
       ...newBalances[index],
-      [field]: value
+      [field]: value,
     };
 
-    // Auto-calculate notional
     if (field === "price" || field === "amount") {
-      newBalances[index].notional = newBalances[index].price * newBalances[index].amount;
+      const price = parseFloat(String(newBalances[index].price)) || 0;
+      const amount = parseFloat(String(newBalances[index].amount)) || 0;
+      newBalances[index].notional = price * amount;
     }
 
     setFormData({ ...formData, balances: newBalances });
@@ -38,8 +68,8 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
   const addBalance = () => {
     const newBalance: Balance = {
       asset: "",
-      price: 0,
-      amount: 0,
+      price: "" as never,
+      amount: "" as never,
       notional: 0,
     };
     setFormData({
@@ -85,7 +115,6 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
           : value,
     };
 
-    // Auto-calculate percentages
     if (field === "jpegVolume" || field === "marketVolume") {
       newExchanges[index].marketShare =
         newExchanges[index].marketVolume > 0
@@ -156,7 +185,7 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
         </div>
       </div>
 
-      {/* Balances */}
+      {/* Balances - ОБНОВЛЕННАЯ СЕКЦИЯ */}
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-semibold text-gray-900">Balances</h3>
@@ -176,45 +205,56 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
                 type="text"
                 value={balance.asset || ""}
                 onChange={(e) => updateBalance(index, "asset", e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                placeholder="BTC"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Price</label>
               <input
-                type="number"
-                step="0.000001"
+                type="text"
                 value={balance.price}
-                onChange={(e) => updateBalance(index, "price", e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                onChange={(e) => handleNumericChange(index, "price", e.target.value)}
+                onBlur={(e) => {
+                  const formatted = formatNumericValue(e.target.value);
+                  updateBalance(index, "price", formatted);
+                }}
+                placeholder="0.00"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
               <input
-                type="number"
+                type="text"
                 value={balance.amount}
-                onChange={(e) => updateBalance(index, "amount", e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                onChange={(e) => handleNumericChange(index, "amount", e.target.value)}
+                onBlur={(e) => {
+                  const formatted = formatNumericValue(e.target.value);
+                  updateBalance(index, "amount", formatted);
+                }}
+                placeholder="0"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Notional</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Notional (USD)</label>
               <input
-                type="number"
-                value={balance.notional.toFixed(2)}
+                type="text"
+                value={balance.notional === 0 ? "" : balance.notional.toFixed(2)}
                 disabled
-                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100"
+                placeholder="0.00"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600 cursor-not-allowed"
               />
             </div>
             {formData.balances && formData.balances.length > 1 && (
               <button
                 type="button"
                 onClick={() => removeBalance(index)}
-                className="absolute top-2 right-2 text-red-600 hover:text-red-700 text-sm"
+                className="absolute top-2 right-2 text-red-600 hover:text-red-700 text-sm font-medium"
                 title="Remove balance"
               >
-                Remove
+                ✕ Remove
               </button>
             )}
           </div>

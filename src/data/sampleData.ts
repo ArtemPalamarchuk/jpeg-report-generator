@@ -8,8 +8,8 @@ export const emptyReportData: ReportData = {
   balances: [
     {
       asset: "",
-      price: 0,
-      amount: 0,
+      price: "" as never,
+      amount: "" as never,
       notional: 0,
     },
   ],
