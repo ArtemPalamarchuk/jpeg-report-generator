@@ -601,7 +601,7 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
           font-family: 'Bai Jamjuree', sans-serif;
           font-weight: 400;
           font-size: 20px;
-          color: #666;
+          color: rgba(0, 0, 0, 0.7);
         }
         
         /* Exchange Table - same style as Balances table */
