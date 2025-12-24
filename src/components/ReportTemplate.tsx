@@ -660,9 +660,9 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
           ))}
 
           <div className="table-footer">
-            <div className="table-footer-cell">Sum</div>
-            <div className="table-footer-cell"></div>
-            <div className="table-footer-cell"></div>
+            <div className="table-footer-cell" style={{ borderRight: 'none' }}>Sum</div>
+            <div className="table-footer-cell" style={{ borderLeft: 'none', borderRight: 'none' }}></div>
+            <div className="table-footer-cell" style={{ borderLeft: 'none', borderRight: 'none' }}></div>
             <div className="table-footer-value">{formatCurrency(totalNotional)}</div>
           </div>
         </div>
