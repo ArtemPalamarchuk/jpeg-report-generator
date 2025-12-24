@@ -308,7 +308,7 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
         }
         
         .date-text {
-          font-weight: 700;
+          font-weight: 600;
           font-size: 16px;
           line-height: 20px;
           color: white;
@@ -349,7 +349,7 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
         }
         
         .commentary-title {
-          font-weight: 600;
+          font-weight: 500;
           font-size: 32px;
           line-height: 40px;
           color: white;
@@ -394,13 +394,13 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
           display: flex;
           align-items: center;
           justify-content: center;
-          font-weight: 700;
+          font-weight: 600;
           font-size: 20px;
           color: black;
         }
         
         .section-title {
-          font-weight: 600;
+          font-weight: 500;
           font-size: 32px;
           text-transform: capitalize;
           color: white;
@@ -415,7 +415,6 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
         .table-header,
         .exchange-header {
           display: flex;
-          border-bottom: 1px solid #CCCCCC;
         }
         
         .table-header-cell,
@@ -424,8 +423,8 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
           padding: 20px;
           background: rgba(139, 154, 253, 0.2);
           border: 1px solid #CCCCCC;
-          font-weight: 700;
-          font-size: 24px;
+          font-weight: 600;
+          font-size: 22px;
           line-height: 30px;
           color: black;
           -webkit-print-color-adjust: exact;
@@ -442,6 +441,7 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
           flex: 1;
           padding: 20px;
           border: 1px solid #CCCCCC;
+          opacity: 0.6;
           font-weight: 400;
           font-size: 24px;
           line-height: 30px;
@@ -470,7 +470,7 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
           flex: 1;
           padding: 20px;
           border: 1px solid #CCCCCC;
-          font-weight: 700;
+          font-weight: 600;
           font-size: 24px;
           color: black;
         }
@@ -480,7 +480,7 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
           padding: 20px;
           background: #8B9AFD;
           border: 1px solid #CCCCCC;
-          font-weight: 700;
+          font-weight: 600;
           font-size: 24px;
           color: white;
           text-align: right;
@@ -509,7 +509,7 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
         }
         
         .stat-value {
-          font-weight: 700;
+          font-weight: 600;
           font-size: 28px;
           color: #000;
         }
@@ -549,7 +549,7 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
           margin-top: auto; 
           margin-bottom: 4px;
           font-size: 18px;
-          font-weight: 600;
+          font-weight: 500;
         }
         
         /* Print Styles */
