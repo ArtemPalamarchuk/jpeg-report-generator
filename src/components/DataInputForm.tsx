@@ -94,7 +94,7 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
       liquidity2pct: 0,
       jpegLiquidity2pct: 0,
       liquidityShare: 0,
-      avgSpread: 0,
+      avgSpread: 0, // unused
     };
     setFormData({
       ...formData,
@@ -182,7 +182,7 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
         </div>
       </div>
 
-      {/* Balances - ОБНОВЛЕННАЯ СЕКЦИЯ */}
+      {/* Balances */}
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-semibold text-gray-900">Balances</h3>
@@ -300,23 +300,12 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">
-                    JPEG Volume
+                    2% Liquidity
                   </label>
                   <input
                     type="number"
-                    value={exchange.jpegVolume}
-                    onChange={(e) => updateExchange(index, "jpegVolume", e.target.value)}
-                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">
-                    Market Volume
-                  </label>
-                  <input
-                    type="number"
-                    value={exchange.marketVolume}
-                    onChange={(e) => updateExchange(index, "marketVolume", e.target.value)}
+                    value={exchange.liquidity2pct}
+                    onChange={(e) => updateExchange(index, "liquidity2pct", e.target.value)}
                     className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
                   />
                 </div>
@@ -331,25 +320,27 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
                     className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
                   />
                 </div>
+
+                <div></div>
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">
-                    2% Liquidity
+                    Market Volume
                   </label>
                   <input
                     type="number"
-                    value={exchange.liquidity2pct}
-                    onChange={(e) => updateExchange(index, "liquidity2pct", e.target.value)}
+                    value={exchange.marketVolume}
+                    onChange={(e) => updateExchange(index, "marketVolume", e.target.value)}
                     className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">
-                    Avg Spread (bps)
+                    JPEG Volume
                   </label>
                   <input
                     type="number"
-                    value={exchange.avgSpread}
-                    onChange={(e) => updateExchange(index, "avgSpread", e.target.value)}
+                    value={exchange.jpegVolume}
+                    onChange={(e) => updateExchange(index, "jpegVolume", e.target.value)}
                     className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
                   />
                 </div>
