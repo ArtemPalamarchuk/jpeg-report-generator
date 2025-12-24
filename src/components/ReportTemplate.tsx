@@ -17,7 +17,6 @@ const CircularProgress = ({ percentage }: { percentage: number }) => {
     <div className="circular-progress" style={{ width: `${size}px`, height: `${size}px` }}>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         <circle
-          className="circular-progress-bg"
           cx={size / 2}
           cy={size / 2}
           r={radius}
@@ -28,7 +27,6 @@ const CircularProgress = ({ percentage }: { percentage: number }) => {
           }}
         />
         <circle
-          className="circular-progress-fill"
           cx={size / 2}
           cy={size / 2}
           r={radius}
@@ -41,7 +39,6 @@ const CircularProgress = ({ percentage }: { percentage: number }) => {
             strokeDashoffset: offset,
             transform: "rotate(-90deg)",
             transformOrigin: "50% 50%",
-            transition: "stroke-dashoffset 0.3s ease",
           }}
         />
       </svg>
@@ -64,7 +61,6 @@ const PriceChart = ({ prices }: { prices: Array<{ date: string; price: number }>
   const maxPrice = Math.max(...priceValues);
   const priceRange = maxPrice - minPrice || 1;
 
-  // Create path for line chart
   const points = prices
     .map((p, i) => {
       const x = padding + (i / (prices.length - 1)) * chartWidth;
@@ -74,11 +70,8 @@ const PriceChart = ({ prices }: { prices: Array<{ date: string; price: number }>
     .join(" ");
 
   const pathD = `M ${points.replace(/ /g, " L ")}`;
-
-  // Create gradient fill area
   const areaD = `${pathD} L ${padding + chartWidth},${padding + chartHeight} L ${padding},${padding + chartHeight} Z`;
 
-  // Calculate vertical grid line positions (about 4-5 vertical lines)
   const verticalGridCount = 4;
   const verticalGridPositions = Array.from(
     { length: verticalGridCount + 1 },
@@ -94,7 +87,6 @@ const PriceChart = ({ prices }: { prices: Array<{ date: string; price: number }>
         </linearGradient>
       </defs>
 
-      {/* Horizontal grid lines */}
       {[0, 0.25, 0.5, 0.75, 1].map((ratio, i) => (
         <line
           key={`h-${i}`}
@@ -107,7 +99,6 @@ const PriceChart = ({ prices }: { prices: Array<{ date: string; price: number }>
         />
       ))}
 
-      {/* Vertical grid lines */}
       {verticalGridPositions.map((ratio, i) => (
         <line
           key={`v-${i}`}
@@ -120,10 +111,8 @@ const PriceChart = ({ prices }: { prices: Array<{ date: string; price: number }>
         />
       ))}
 
-      {/* Area fill */}
       <path d={areaD} fill="url(#chartGradient)" />
 
-      {/* Line */}
       <path
         d={pathD}
         fill="none"
@@ -133,7 +122,6 @@ const PriceChart = ({ prices }: { prices: Array<{ date: string; price: number }>
         strokeLinecap="round"
       />
 
-      {/* Y-axis labels - larger and darker */}
       {[0, 0.5, 1].map((ratio, i) => {
         const price = minPrice + priceRange * (1 - ratio);
         return (
@@ -151,7 +139,6 @@ const PriceChart = ({ prices }: { prices: Array<{ date: string; price: number }>
         );
       })}
 
-      {/* X-axis labels - larger and darker, more labels */}
       {verticalGridPositions.map((ratio, i) => {
         const dateIndex = Math.round(ratio * (prices.length - 1));
         const datePoint = prices[dateIndex];
@@ -180,38 +167,28 @@ const PriceChart = ({ prices }: { prices: Array<{ date: string; price: number }>
 };
 
 const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
-  // Calculate totals
   const totalNotional = data.balances.reduce((sum, b) => sum + b.notional, 0);
 
-  // Generate historical prices from OHLC if not provided
   const getHistoricalPrices = () => {
     if (data.historicalPrices && data.historicalPrices.length > 0) {
       return data.historicalPrices;
     }
 
-    // Auto-generate simple price chart from OHLC data
-    // Create interpolated points from start to end date
     const startDate = new Date(data.date);
     const endDate = new Date(data.date);
-
-    // Assume the report covers the previous month
     startDate.setMonth(startDate.getMonth() - 1);
 
     const points: Array<{ date: string; price: number }> = [];
     const daysDiff = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
 
-    // Generate points with realistic price movement (deterministic)
     for (let i = 0; i <= Math.min(daysDiff, 30); i++) {
       const currentDate = new Date(startDate);
       currentDate.setDate(startDate.getDate() + i);
 
-      // Interpolate price between open and close with some variation
       const progress = i / Math.min(daysDiff, 30);
       const basePrice = data.prices.open + (data.prices.close - data.prices.open) * progress;
 
-      // Add some realistic variation using high/low bounds (deterministic using sin wave)
       const range = data.prices.high - data.prices.low;
-      // Use multiple sine waves with different frequencies for more realistic variation
       const variation =
         (Math.sin(i * 0.5) * 0.3 + Math.sin(i * 0.3) * 0.2 + Math.cos(i * 0.7) * 0.15) *
         range *
@@ -229,7 +206,6 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
 
   const historicalPrices = getHistoricalPrices();
 
-  // Calculate summary statistics
   const globalAvgLiquidity =
     data.exchanges.reduce((sum, e) => sum + e.liquidity2pct, 0) / data.exchanges.length;
   const jpegAvgLiquidity =
@@ -281,18 +257,16 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
         }
         
         body {
-          font-family: 'Bai Jamjuree', sans-serif;
+          font-family: Arial, sans-serif;
           background: #f5f5f5;
           -webkit-print-color-adjust: exact;
           print-color-adjust: exact;
-          color-adjust: exact;
         }
         
         .report-container {
           max-width: 1200px;
           margin: 0 auto;
           background: white;
-          position: relative;
           -webkit-print-color-adjust: exact;
           print-color-adjust: exact;
         }
@@ -301,19 +275,14 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
         .logo-header {
           padding: 18px 36px;
           border-bottom: 1px solid #e0e0e0;
-          position: relative;
-          z-index: 1;
           background: white;
         }
         
         /* Header Section */
         .header-section {
           display: flex;
-          justify-content: space-between;
           gap: 0;
           margin: 120px 36px;
-          position: relative;
-          z-index: 1;
         }
         
         .header-left {
@@ -322,13 +291,11 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
           padding: 40px;
           background: white;
           border: 1px solid rgba(0, 0, 0, 0.2);
-          position: relative;
           display: flex;
           flex-direction: column;
           justify-content: space-between;
+          position: relative;
           overflow: hidden;
-          -webkit-print-color-adjust: exact;
-          print-color-adjust: exact;
         }
         
         .date-badge {
@@ -349,7 +316,6 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
         }
         
         .main-title {
-          width: 100%;
           font-weight: 500;
           font-size: 60px;
           line-height: 90%;
@@ -361,7 +327,6 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
           color: #8B9AFD;
         }
         
-        /* Decorative elements */
         .decorative-lines {
           position: absolute;
           right: 0;
@@ -378,7 +343,6 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
           background: #8B9AFD;
           display: flex;
           flex-direction: column;
-          justify-content: between;
           gap: 50px;
           -webkit-print-color-adjust: exact;
           print-color-adjust: exact;
@@ -398,16 +362,9 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
           color: white;
         }
         
-        .balances-section {
-          padding: 0 36px;
-          margin-bottom: 120px;
-        }
-        
-        .liquidity-statistics {
-          padding: 0 36px;
-          margin-bottom: 120px;
-        }
-        
+        /* Sections */
+        .balances-section,
+        .liquidity-statistics,
         .volume-statistics {
           padding: 0 36px;
           margin-bottom: 120px;
@@ -425,8 +382,6 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
           gap: 16px;
           background: linear-gradient(90deg, #8B9AFD 0%, #FFFFFF 100%);
           margin-bottom: 20px;
-          position: relative;
-          z-index: 1;
           -webkit-print-color-adjust: exact;
           print-color-adjust: exact;
         }
@@ -441,35 +396,30 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
           justify-content: center;
           font-weight: 700;
           font-size: 20px;
-          line-height: 85%;
-          letter-spacing: -0.08em;
           color: black;
-          -webkit-print-color-adjust: exact;
-          print-color-adjust: exact;
         }
         
         .section-title {
           font-weight: 600;
           font-size: 32px;
-          line-height: 120%;
-          letter-spacing: -0.02em;
           text-transform: capitalize;
           color: white;
         }
         
         /* Tables */
-        .table-container {
+        .table-container,
+        .exchange-table {
           background: white;
-          position: relative;
-          z-index: 1;
         }
         
-        .table-header {
+        .table-header,
+        .exchange-header {
           display: flex;
           border-bottom: 1px solid #CCCCCC;
         }
         
-        .table-header-cell {
+        .table-header-cell,
+        .exchange-header-cell {
           flex: 1;
           padding: 20px;
           background: rgba(139, 154, 253, 0.2);
@@ -482,11 +432,13 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
           print-color-adjust: exact;
         }
         
-        .table-row {
+        .table-row,
+        .exchange-row {
           display: flex;
         }
         
-        .table-cell {
+        .table-cell,
+        .exchange-cell {
           flex: 1;
           padding: 20px;
           border: 1px solid #CCCCCC;
@@ -494,6 +446,16 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
           font-size: 24px;
           line-height: 30px;
           color: black;
+        }
+        
+        .exchange-cell {
+          display: flex;
+          gap: 8px;
+          align-items: center;
+        }
+        
+        .exchange-cell.with-indicator {
+          justify-content: space-between;
         }
         
         .table-cell.right {
@@ -507,25 +469,17 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
         .table-footer-cell {
           flex: 1;
           padding: 20px;
-          border-top: 1px solid #CCCCCC;
-          border-bottom: 1px solid #CCCCCC;
+          border: 1px solid #CCCCCC;
           font-weight: 700;
           font-size: 24px;
           color: black;
-        }
-        
-        .table-footer-cell:first-child {
-          border-left: 1px solid #CCCCCC;
-        }
-        
-        .table-footer-value {
-          border-right: 1px solid #CCCCCC;
         }
         
         .table-footer-value {
           flex: 1;
           padding: 20px;
           background: #8B9AFD;
+          border: 1px solid #CCCCCC;
           font-weight: 700;
           font-size: 24px;
           color: white;
@@ -542,161 +496,39 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
           margin-bottom: 20px;
         }
         
-        .stat-card {
-          box-sizing: border-box;
-          display: flex;
-          flex-direction: column;
-          align-items: flex-start;
-          padding: 20px;
-          gap: 100px;
-          background: #E8EBFF;
-          border: 1px solid rgba(0, 0, 0, 0.2);
-          position: relative;
-          z-index: 1;
-          -webkit-print-color-adjust: exact;
-          print-color-adjust: exact;
-        }
-        
-        /* Price Cards (OHLC) - different styling */
+        .stat-card,
         .price-card {
-          box-sizing: border-box;
           display: flex;
           flex-direction: column;
-          align-items: flex-start;
           padding: 20px;
           gap: 100px;
           background: #E8EBFF;
           border: 1px solid rgba(0, 0, 0, 0.2);
-          position: relative;
-          z-index: 1;
           -webkit-print-color-adjust: exact;
           print-color-adjust: exact;
-        }
-        
-        .price-card .stat-value {
-          font-weight: 700;
-          font-size: 32px;
-          line-height: 40px;
-          color: #000;
-          margin-bottom: 0;
-        }
-        
-        .price-card .stat-label {
-          font-weight: 500;
-          font-size: 20px;
-          line-height: 25px;
-          letter-spacing: -0.04em;
-          color: rgba(0, 0, 0, 0.7);
         }
         
         .stat-value {
           font-weight: 700;
           font-size: 28px;
-          line-height: 1;
           color: #000;
-          margin-bottom: 8px;
+        }
+        
+        .price-card .stat-value {
+          font-size: 32px;
         }
         
         .stat-label {
-          font-family: 'Bai Jamjuree', sans-serif;
           font-weight: 400;
           font-size: 20px;
           color: rgba(0, 0, 0, 0.7);
         }
         
-        /* Exchange Table - same style as Balances table */
-        .exchange-table {
-          background: white;
-          position: relative;
-          z-index: 1;
+        .price-card .stat-label {
+          font-weight: 500;
         }
         
-        .exchange-header {
-          display: flex;
-          border-bottom: 1px solid #CCCCCC;
-        }
-        
-        .exchange-header-cell {
-          flex: 1;
-          padding: 24px 20px;
-          background: rgba(139, 154, 253, 0.2);
-          border: 1px solid #CCCCCC;
-          font-weight: 700;
-          font-size: 24px;
-          line-height: 30px;
-          color: black;
-          -webkit-print-color-adjust: exact;
-          print-color-adjust: exact;
-        }
-        
-        .exchange-row {
-          display: flex;
-          border-bottom: 1px solid #CCCCCC;
-        }
-        
-        .exchange-cell {
-          flex: 1;
-          padding: 24px 20px;
-          border: 1px solid #CCCCCC;
-          font-weight: 400;
-          font-size: 24px;
-          line-height: 30px;
-          color: black;
-          display: flex;
-          gap: 8px;
-          align-items: center;
-        }
-        
-        .exchange-cell.with-indicator {
-          justify-content: space-between;
-        }
-        
-        .exchange-cell span {
-          margin-left: auto; 
-        }
-        
-        /* Circular Progress Indicator */
-        .circular-progress {
-          position: relative;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        
-        .progress-bar {
-          width: 80px;
-          height: 8px;
-          background: #E5E7EB;
-          border-radius: 4px;
-          overflow: hidden;
-          position: relative;
-          -webkit-print-color-adjust: exact;
-          print-color-adjust: exact;
-        }
-        
-        .progress-fill {
-          height: 100%;
-          background: linear-gradient(90deg, #8B9AFD 0%, #223FFA 100%);
-          border-radius: 4px;
-          -webkit-print-color-adjust: exact;
-          print-color-adjust: exact;
-        }
-        
-        /* Background decorations */
-        .section-bg-decoration {
-          position: absolute;
-          width: 100%;
-          height: 433px;
-          left: 0;
-          pointer-events: none;
-          opacity: 0.5;
-          z-index: -1;
-        }
-        
-        .section-wrapper {
-          position: relative;
-        }
-        
+        /* Footer */
         .footer-center {
           height: 62px;
           margin-top: -62px;
@@ -720,9 +552,8 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
           font-weight: 600;
         }
         
-        /* Print Styles with Page Break Control */
+        /* Print Styles */
         @media print {
-          /* Dynamic @page size will be injected by JavaScript */
           html,
           body {
             height: auto;
@@ -735,10 +566,8 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
           .report-container {
             max-width: 100%;
             margin: 0 auto;
-            page-break-after: avoid;
           }
           
-          /* Keep everything on one page */
           * {
             page-break-inside: avoid;
             break-inside: avoid;
@@ -746,12 +575,10 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
         }
       `}</style>
 
-      {/* Logo */}
       <div className="logo-header">
         <img src={images.logo} alt="JPEG Trading" />
       </div>
 
-      {/* Header */}
       <div className="header-section">
         <div className="header-left">
           <div className="date-badge">
@@ -768,7 +595,6 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
             Monthly Liquidity Report for <span className="token-name">{data.token}</span>
           </h1>
 
-          {/* Decorative lines SVG */}
           <img src={images.headerDecorativeLines} alt="" className="decorative-lines" />
         </div>
         <div className="header-right">
@@ -777,7 +603,6 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
         </div>
       </div>
 
-      {/* Balances */}
       <div className="balances-section">
         <div className="section-header">
           <div className="section-number">1</div>
@@ -810,7 +635,6 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
         </div>
       </div>
 
-      {/* Liquidity Statistics */}
       <div className="liquidity-statistics">
         <div className="section-header">
           <div className="section-number">2</div>
@@ -852,7 +676,6 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
         </div>
       </div>
 
-      {/* Volume Statistics */}
       <div className="volume-statistics">
         <div className="section-header">
           <div className="section-number">3</div>
@@ -894,7 +717,6 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
         </div>
       </div>
 
-      {/* Reporting Prices */}
       <div className="reporting-prices">
         <div className="section-header">
           <div className="section-number">4</div>
@@ -920,13 +742,11 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
           </div>
         </div>
 
-        {/* Price Chart */}
         <div style={{ marginTop: "40px" }}>
           <PriceChart prices={historicalPrices} />
         </div>
       </div>
 
-      {/* Footer */}
       <img
         src={images.logoFooter}
         alt=""

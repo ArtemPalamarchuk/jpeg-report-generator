@@ -9,7 +9,6 @@ export const validateReportData = (data: ReportData): string[] => {
   if (!data.token) errors.push("Token name is required");
   if (!data.date) errors.push("Report date is required");
 
-  // Validate balances
   data.balances?.forEach((balance, idx) => {
     if (balance.notional < 0) {
       errors.push(`Balance #${idx + 1}: Notional value cannot be negative`);
@@ -19,7 +18,6 @@ export const validateReportData = (data: ReportData): string[] => {
     }
   });
 
-  // Validate exchanges
   data.exchanges?.forEach((exchange, idx) => {
     if (!exchange.venue) {
       errors.push(`Exchange #${idx + 1}: Venue name is required`);
@@ -40,17 +38,14 @@ export const validateReportData = (data: ReportData): string[] => {
 
 export const generateAndOpenReport = (data: ReportData) => {
   try {
-    // Validate data first
     const errors = validateReportData(data);
     if (errors.length > 0) {
       alert("Validation errors:\n\n" + errors.map((e) => "• " + e).join("\n"));
       return;
     }
 
-    // Render React component to HTML string
     const htmlContent = renderToString(React.createElement(ReportTemplate, { data }));
 
-    // Create complete HTML document
     const fullHTML = `
     <!DOCTYPE html>
     <html lang="en">
@@ -58,15 +53,18 @@ export const generateAndOpenReport = (data: ReportData) => {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Monthly Liquidity Report - ${data.token} - ${data.date}</title>
-      <link rel="preconnect" href="https://fonts.googleapis.com">
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-      <link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          margin: 0;
+          padding: 0;
+        }
+      </style>
     </head>
     <body>
       ${htmlContent}
       
       <script>
-        // Print button
         const printButton = document.createElement('button');
         printButton.textContent = '🖨️ Print / Save as PDF';
         printButton.style.cssText = 
@@ -78,7 +76,7 @@ export const generateAndOpenReport = (data: ReportData) => {
           'color: white;' +
           'border: none;' +
           'border-radius: 8px;' +
-          'font-family: "Bai Jamjuree", sans-serif;' +
+          'font-family: Arial, sans-serif;' +
           'font-size: 16px;' +
           'font-weight: 600;' +
           'cursor: pointer;' +
@@ -107,37 +105,35 @@ export const generateAndOpenReport = (data: ReportData) => {
           printButton.style.display = 'block';
         });
         
-   window.addEventListener('load', () => {
-  const container = document.querySelector(".report-container");
-  if (!container) return;
+        window.addEventListener('load', () => {
+          const container = document.querySelector(".report-container");
+          if (!container) return;
 
-  const totalHeightPx = container.getBoundingClientRect().height;
-  
-  const COMPRESSION_FACTOR = 0.6806; 
-  const PX_TO_MM = 0.2646;
+          const totalHeightPx = container.getBoundingClientRect().height;
+          const COMPRESSION_FACTOR = 0.6806; 
+          const PX_TO_MM = 0.2646;
 
-  const adjustedHeightPx = totalHeightPx * COMPRESSION_FACTOR;
-  const heightMm = Math.ceil(adjustedHeightPx * PX_TO_MM);
-  
-  console.log('Original:', totalHeightPx, 'px');
-  console.log('Adjusted:', adjustedHeightPx, 'px');
-  console.log('Final:', heightMm, 'mm');
-  
-  const styleElement = document.createElement('style');
-  styleElement.textContent = 
-    '@media print {' +
-    '  @page { size: 210mm ' + heightMm + 'mm; margin: 0; }' +
-    '  html, body { margin: 0; padding: 0; }' +
-    '  .report-container { margin: 0; padding: 0; }' +
-    '}';
-  document.head.appendChild(styleElement);
-});
+          const adjustedHeightPx = totalHeightPx * COMPRESSION_FACTOR;
+          const heightMm = Math.ceil(adjustedHeightPx * PX_TO_MM);
+          
+          console.log('Original:', totalHeightPx, 'px');
+          console.log('Adjusted:', adjustedHeightPx, 'px');
+          console.log('Final:', heightMm, 'mm');
+          
+          const styleElement = document.createElement('style');
+          styleElement.textContent = 
+            '@media print {' +
+            '  @page { size: 210mm ' + heightMm + 'mm; margin: 0; }' +
+            '  html, body { margin: 0; padding: 0; }' +
+            '  .report-container { margin: 0; padding: 0; }' +
+            '}';
+          document.head.appendChild(styleElement);
+        });
       </script>
     </body>
     </html>
   `;
 
-    // Open in new window
     const newWindow = window.open("", "_blank");
     if (newWindow) {
       newWindow.document.write(fullHTML);
