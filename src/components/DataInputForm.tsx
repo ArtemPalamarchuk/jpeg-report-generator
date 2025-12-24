@@ -24,7 +24,7 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
     const newBalances = [...(formData.balances || [])];
     newBalances[index] = {
       ...newBalances[index],
-      [field]: typeof value === "string" ? parseFloat(value) || 0 : value,
+      [field]: value
     };
 
     // Auto-calculate notional
@@ -104,11 +104,6 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
 
   const removeExchange = (index: number) => {
     const newExchanges = [...(formData.exchanges || [])];
-    // Не дозволяємо видалити якщо залишився тільки 1
-    if (newExchanges.length <= 1) {
-      alert("You must have at least one exchange");
-      return;
-    }
     newExchanges.splice(index, 1);
     setFormData({ ...formData, exchanges: newExchanges });
   };
@@ -179,7 +174,7 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
               <label className="block text-sm font-medium text-gray-700 mb-1">Asset</label>
               <input
                 type="text"
-                value={balance.asset}
+                value={balance.asset || ""}
                 onChange={(e) => updateBalance(index, "asset", e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
               />

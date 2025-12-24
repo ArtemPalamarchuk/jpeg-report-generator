@@ -3,47 +3,8 @@ import React from "react";
 import ReportTemplate from "../components/ReportTemplate";
 import type { ReportData } from "../types";
 
-export const validateReportData = (data: ReportData): string[] => {
-  const errors: string[] = [];
-
-  if (!data.token) errors.push("Token name is required");
-  if (!data.date) errors.push("Report date is required");
-
-  data.balances?.forEach((balance, idx) => {
-    if (balance.notional < 0) {
-      errors.push(`Balance #${idx + 1}: Notional value cannot be negative`);
-    }
-    if (balance.price < 0) {
-      errors.push(`Balance #${idx + 1}: Price cannot be negative`);
-    }
-  });
-
-  data.exchanges?.forEach((exchange, idx) => {
-    if (!exchange.venue) {
-      errors.push(`Exchange #${idx + 1}: Venue name is required`);
-    }
-    if (exchange.marketVolume < 0) {
-      errors.push(`Exchange #${idx + 1}: Market volume cannot be negative`);
-    }
-    if (exchange.jpegVolume < 0) {
-      errors.push(`Exchange #${idx + 1}: JPEG volume cannot be negative`);
-    }
-    if (exchange.marketShare < 0 || exchange.marketShare > 200) {
-      errors.push(`Exchange #${idx + 1}: Market share must be between 0% and 200%`);
-    }
-  });
-
-  return errors;
-};
-
 export const generateAndOpenReport = (data: ReportData) => {
   try {
-    const errors = validateReportData(data);
-    if (errors.length > 0) {
-      alert("Validation errors:\n\n" + errors.map((e) => "• " + e).join("\n"));
-      return;
-    }
-
     const htmlContent = renderToString(React.createElement(ReportTemplate, { data }));
 
     const fullHTML = `

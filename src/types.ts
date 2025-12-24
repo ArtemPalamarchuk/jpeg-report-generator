@@ -46,13 +46,3 @@ export interface ReportData {
   prices: PriceData;
   historicalPrices: PricePoint[];
 }
-
-// Summary statistics
-export interface SummaryStats {
-  globalAvgLiquidity: number;
-  jpegAvgLiquidity: number;
-  jpegLiquidityShare: number;
-  globalTotalVolume: number;
-  jpegTotalVolume: number;
-  jpegMarketShare: number;
-}
