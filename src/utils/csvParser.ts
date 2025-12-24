@@ -129,9 +129,6 @@ export function parseCSV(csvContent: string): ParsedCSVData {
         liquidity2pct: parseNumber(row[colMap["2% Liquidity Avg ($)"] ?? 5] || "0"),
         jpegLiquidity2pct: parseNumber(row[colMap["2% Liquidity"] ?? 6] || "0"),
         liquidityShare: parseNumber(row[colMap["2% Share"] ?? 7] || "0"),
-        liquidity1pct: parseNumber(row[colMap["1% Liquidity Avg ($)"] ?? 8] || "0"),
-        jpegLiquidity1pct: parseNumber(row[colMap["1% Liquidity"] ?? 9] || "0"),
-        share1pct: parseNumber(row[colMap["1% Share"] ?? 10] || "0"),
         avgSpread: parseNumber(row[colMap["Avg Spread (bps)"] ?? 11] || "0"),
       };
 

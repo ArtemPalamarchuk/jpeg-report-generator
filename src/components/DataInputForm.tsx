@@ -94,9 +94,6 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
       liquidity2pct: 0,
       jpegLiquidity2pct: 0,
       liquidityShare: 0,
-      liquidity1pct: 0,
-      jpegLiquidity1pct: 0,
-      share1pct: 0,
       avgSpread: 0,
     };
     setFormData({

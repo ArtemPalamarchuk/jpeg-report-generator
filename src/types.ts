@@ -8,9 +8,6 @@ export interface ExchangeData {
   liquidity2pct: number;
   jpegLiquidity2pct: number;
   liquidityShare: number;
-  liquidity1pct: number;
-  jpegLiquidity1pct: number;
-  share1pct: number;
   avgSpread: number;
 }
 
