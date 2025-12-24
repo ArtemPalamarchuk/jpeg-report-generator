@@ -179,34 +179,6 @@ const PriceChart = ({ prices }: { prices: Array<{ date: string; price: number }>
   );
 };
 
-const BackgroundDecoration = () => (
-  <div
-    style={{
-      position: "absolute",
-      left: 0,
-      width: "100%",
-      height: "294px",
-      marginTop: "-147px",
-      overflow: "visible",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      pointerEvents: "none",
-      zIndex: 0,
-    }}
-  >
-    <img
-      src={images.bgSvg}
-      alt=""
-      style={{
-        width: "1265px",
-        height: "294px",
-        opacity: 0.5,
-      }}
-    />
-  </div>
-);
-
 const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
   // Calculate totals
   const totalNotional = data.balances.reduce((sum, b) => sum + b.notional, 0);
@@ -571,12 +543,14 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
         }
         
         .stat-card {
+          box-sizing: border-box;
           display: flex;
           flex-direction: column;
+          align-items: flex-start;
+          padding: 20px;
           gap: 100px;
           background: #E8EBFF;
-          padding: 24px;
-          border-radius: 8px;
+          border: 1px solid rgba(0, 0, 0, 0.2);
           position: relative;
           z-index: 1;
           -webkit-print-color-adjust: exact;
@@ -593,7 +567,6 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
           gap: 100px;
           background: #E8EBFF;
           border: 1px solid rgba(0, 0, 0, 0.2);
-          border-radius: 0px;
           position: relative;
           z-index: 1;
           -webkit-print-color-adjust: exact;
@@ -625,8 +598,9 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
         }
         
         .stat-label {
+          font-family: 'Bai Jamjuree', sans-serif;
           font-weight: 400;
-          font-size: 14px;
+          font-size: 20px;
           color: #666;
         }
         
@@ -726,6 +700,7 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
         .footer-center {
           height: 62px;
           margin-top: -62px;
+          gap: 32px;
           background-color: white;
           position: relative;
           z-index: 10;
@@ -733,13 +708,14 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
           justify-content: center;
           align-items: center;
           width: 100%;
-          border: 1px solid #CCCCCC;
+          border: 1px solid #ccc;
+          border-bottom: 0;
         }
         
         .footer-text {
           text-transform: uppercase;
           margin-top: auto; 
-          margin-bottom: 10px;
+          margin-bottom: 4px;
           font-size: 18px;
           font-weight: 600;
         }
@@ -960,7 +936,7 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
           position: "relative",
         }}
       />
-      <div className="footer-center" style={{ gap: "16px" }}>
+      <div className="footer-center">
         <div style={{ width: "1px", height: "100%", backgroundColor: "#CCCCCC" }} />
         <span className="footer-text">© 2025 JPEG Trading. All rights reserved.</span>
         <div style={{ width: "1px", height: "100%", backgroundColor: "#CCCCCC" }} />
