@@ -1,6 +1,7 @@
 import React from "react";
 import type { ReportData } from "../types";
 import { images } from "../utils/images-base64";
+import { fonts } from "../utils/fonts-base64";
 
 interface ReportTemplateProps {
   data: ReportData;
@@ -250,6 +251,38 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
   return (
     <div className="report-container">
       <style>{`
+        @font-face {
+          font-family: 'Bai Jamjuree';
+          src: url('${fonts.light}') format('truetype');
+          font-weight: 300;
+          font-style: normal;
+          font-display: block;
+        }
+        
+        @font-face {
+          font-family: 'Bai Jamjuree';
+          src: url('${fonts.regular}') format('truetype');
+          font-weight: 400;
+          font-style: normal;
+          font-display: block;
+        }
+        
+        @font-face {
+          font-family: 'Bai Jamjuree';
+          src: url('${fonts.medium}') format('truetype');
+          font-weight: 500;
+          font-style: normal;
+          font-display: block;
+        }
+        
+        @font-face {
+          font-family: 'Bai Jamjuree';
+          src: url('${fonts.semibold}') format('truetype');
+          font-weight: 600;
+          font-style: normal;
+          font-display: block;
+        }
+        
         * {
           margin: 0;
           padding: 0;
@@ -257,7 +290,7 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
         }
         
         body {
-          font-family: Arial, sans-serif;
+          font-family: 'Bai Jamjuree', Arial, sans-serif;
           background: #f5f5f5;
           -webkit-print-color-adjust: exact;
           print-color-adjust: exact;

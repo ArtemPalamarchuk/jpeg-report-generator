@@ -55,7 +55,7 @@ export const generateAndOpenReport = (data: ReportData) => {
       <title>Monthly Liquidity Report - ${data.token} - ${data.date}</title>
       <style>
         body {
-          font-family: Arial, sans-serif;
+          font-family: 'Bai Jamjuree', Arial, sans-serif;
           margin: 0;
           padding: 0;
         }
@@ -76,7 +76,7 @@ export const generateAndOpenReport = (data: ReportData) => {
           'color: white;' +
           'border: none;' +
           'border-radius: 8px;' +
-          'font-family: Arial, sans-serif;' +
+          'font-family: \\'Bai Jamjuree\\', Arial, sans-serif;' +
           'font-size: 16px;' +
           'font-weight: 600;' +
           'cursor: pointer;' +
@@ -110,7 +110,7 @@ export const generateAndOpenReport = (data: ReportData) => {
           if (!container) return;
 
           const totalHeightPx = container.getBoundingClientRect().height;
-          const COMPRESSION_FACTOR = 0.6806; 
+          const COMPRESSION_FACTOR = 0.685; 
           const PX_TO_MM = 0.2646;
 
           const adjustedHeightPx = totalHeightPx * COMPRESSION_FACTOR;
