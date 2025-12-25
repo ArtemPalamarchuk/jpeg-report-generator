@@ -52,10 +52,13 @@ const PriceChart = ({ prices }: { prices: Array<{ date: string; price: number }>
 
   const width = 1130;
   const height = 400;
-  const padding = 40;
+  const leftPadding = 70;
+  const rightPadding = 40;
+  const topPadding = 40;
+  const bottomPadding = 40;
 
-  const chartWidth = width - padding * 2;
-  const chartHeight = height - padding * 2;
+  const chartWidth = width - leftPadding - rightPadding;
+  const chartHeight = height - topPadding - bottomPadding;
 
   const priceValues = prices.map((p) => p.price);
   const minPrice = Math.min(...priceValues);
@@ -64,14 +67,14 @@ const PriceChart = ({ prices }: { prices: Array<{ date: string; price: number }>
 
   const points = prices
     .map((p, i) => {
-      const x = padding + (i / (prices.length - 1)) * chartWidth;
-      const y = padding + chartHeight - ((p.price - minPrice) / priceRange) * chartHeight;
+      const x = leftPadding + (i / (prices.length - 1)) * chartWidth;
+      const y = topPadding + chartHeight - ((p.price - minPrice) / priceRange) * chartHeight;
       return `${x},${y}`;
     })
     .join(" ");
 
   const pathD = `M ${points.replace(/ /g, " L ")}`;
-  const areaD = `${pathD} L ${padding + chartWidth},${padding + chartHeight} L ${padding},${padding + chartHeight} Z`;
+  const areaD = `${pathD} L ${leftPadding + chartWidth},${topPadding + chartHeight} L ${leftPadding},${topPadding + chartHeight} Z`;
 
   const verticalGridCount = 4;
   const verticalGridPositions = Array.from(
@@ -91,10 +94,10 @@ const PriceChart = ({ prices }: { prices: Array<{ date: string; price: number }>
       {[0, 0.25, 0.5, 0.75, 1].map((ratio, i) => (
         <line
           key={`h-${i}`}
-          x1={padding}
-          y1={padding + chartHeight * ratio}
-          x2={padding + chartWidth}
-          y2={padding + chartHeight * ratio}
+          x1={leftPadding}
+          y1={topPadding + chartHeight * ratio}
+          x2={leftPadding + chartWidth}
+          y2={topPadding + chartHeight * ratio}
           stroke="#D1D5DB"
           strokeWidth="1"
         />
@@ -103,10 +106,10 @@ const PriceChart = ({ prices }: { prices: Array<{ date: string; price: number }>
       {verticalGridPositions.map((ratio, i) => (
         <line
           key={`v-${i}`}
-          x1={padding + chartWidth * ratio}
-          y1={padding}
-          x2={padding + chartWidth * ratio}
-          y2={padding + chartHeight}
+          x1={leftPadding + chartWidth * ratio}
+          y1={topPadding}
+          x2={leftPadding + chartWidth * ratio}
+          y2={topPadding + chartHeight}
           stroke="#D1D5DB"
           strokeWidth="1"
         />
@@ -128,8 +131,8 @@ const PriceChart = ({ prices }: { prices: Array<{ date: string; price: number }>
         return (
           <text
             key={i}
-            x={padding - 10}
-            y={padding + chartHeight * ratio + 5}
+            x={leftPadding - 10}
+            y={topPadding + chartHeight * ratio + 5}
             textAnchor="end"
             fontSize="14"
             fontWeight="500"
@@ -148,7 +151,7 @@ const PriceChart = ({ prices }: { prices: Array<{ date: string; price: number }>
         return (
           <text
             key={`x-label-${i}`}
-            x={padding + chartWidth * ratio}
+            x={leftPadding + chartWidth * ratio}
             y={height - 10}
             textAnchor="middle"
             fontSize="14"
