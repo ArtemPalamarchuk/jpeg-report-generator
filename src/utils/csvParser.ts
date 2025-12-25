@@ -12,12 +12,12 @@ function parseNumber(value: string | number): number {
   return isNaN(parsed) ? 0 : parsed;
 }
 
-export interface ParsedCSVData {
+interface ParsedCSVData {
   token: string;
   exchanges: ExchangeData[];
 }
 
-export function parseCSV(csvContent: string): ParsedCSVData {
+function parseCSV(csvContent: string): ParsedCSVData {
   // Parse without headers first to handle the non-standard format
   const result = Papa.parse<string[]>(csvContent, {
     skipEmptyLines: true,
