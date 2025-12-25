@@ -67,7 +67,7 @@ function App() {
         {/* Content */}
         <div className="bg-white rounded-lg shadow-sm p-6">
           {activeTab === "sheets" && (
-              <SheetsImport onSuccess={handleGenerateReport} onEditInForm={handleLoadToForm} />
+            <SheetsImport onSuccess={handleGenerateReport} onEditInForm={handleLoadToForm} />
           )}
           {activeTab === "csv" && (
             <CSVImport onSuccess={handleGenerateReport} onEditInForm={handleLoadToForm} />

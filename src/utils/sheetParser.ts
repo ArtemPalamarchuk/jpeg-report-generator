@@ -142,44 +142,33 @@ function parseBalanceSheet(data: SheetData): Balance[] {
 
   console.log("\n💰 Parsing Bal sheet:");
 
-  if (rows.length < 2) {
+  if (rows.length === 0) {
     console.log("  No balance data");
-    return [
-      {
-        asset: "USDT",
-        price: 1.0,
-        amount: 0,
-        notional: 0,
-      },
-    ];
+    return [];
   }
 
-  // Row 0: Headers
-  const headers = rows[0] || [];
-  const colMap: Record<string, number> = {};
-  headers.forEach((header, index) => {
-    if (header) colMap[header.trim()] = index;
-  });
-
-  // Rows 1+: Balances
+  // Rows without headers - just data
+  // Column A: Entity, B: Asset, C: Amount, D: Date
   const balances: Balance[] = [];
-  for (let i = 1; i < rows.length; i++) {
-    const row = rows[i];
-    const asset = row[colMap["Asset"] ?? 0]?.trim();
 
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+
+    // Column B = Asset (USDT, NEAR, etc)
+    const asset = row[1]?.trim();
     if (!asset) continue;
 
-    const price = parseNumber(row[colMap["Price"] ?? 1] || "0");
-    const amount = parseNumber(row[colMap["Amount"] ?? 2] || "0");
+    // Column C = Amount
+    const amount = parseNumber(row[2] || "0");
 
     const balance: Balance = {
       asset,
-      price,
+      price: 0,
       amount,
-      notional: price * amount,
+      notional: 0, // Will be calculated when we have price
     };
 
-    console.log(`  ✓ ${asset}: ${amount} @ $${price}`);
+    console.log(`  ✓ ${asset}: ${amount} (entity: ${row[0]})`);
     balances.push(balance);
   }
 
