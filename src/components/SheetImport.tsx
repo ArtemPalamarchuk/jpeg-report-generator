@@ -64,7 +64,7 @@ function SheetsImport({ onSuccess, onEditInForm }: SheetsImportProps) {
               disabled={loading || !sheetsUrl.trim()}
               className="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-medium"
             >
-              {loading ? "Loading..." : "Load"}
+              {loading ? "Loading..." : "Load Preview"}
             </button>
           </div>
           <p className="mt-1 text-xs text-gray-500">
