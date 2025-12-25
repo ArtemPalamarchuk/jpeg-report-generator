@@ -213,21 +213,6 @@ function CSVUploader({ onSubmit }: CSVUploaderProps) {
           </div>
         </div>
       )}
-
-      {/* Instructions */}
-      {!reportData && (
-        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
-          <h4 className="text-sm font-medium text-blue-900 mb-2">CSV Format Requirements:</h4>
-          <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
-            <li>
-              File must contain headers: Exchange, Symbol, JPEG Volume ($), Market Volume ($), etc.
-            </li>
-            <li>Numbers can include $ signs and commas (e.g., "$180,524")</li>
-            <li>Empty rows will be skipped automatically</li>
-            <li>First valid Symbol will be used to extract token name</li>
-          </ul>
-        </div>
-      )}
     </div>
   );
 }
