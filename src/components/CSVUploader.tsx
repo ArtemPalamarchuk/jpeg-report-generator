@@ -4,9 +4,10 @@ import type { ReportData } from "../types";
 
 interface CSVUploaderProps {
   onSubmit: (data: ReportData) => void;
+  onEditInForm?: (data: ReportData) => void;
 }
 
-function CSVUploader({ onSubmit }: CSVUploaderProps) {
+function CSVUploader({ onSubmit, onEditInForm }: CSVUploaderProps) {
   const [file, setFile] = useState<File | null>(null);
   const [reportData, setReportData] = useState<ReportData | null>(null);
   const [error, setError] = useState<string>("");
@@ -17,7 +18,6 @@ function CSVUploader({ onSubmit }: CSVUploaderProps) {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
 
-    // Check if file is CSV
     if (!selectedFile.name.toLowerCase().endsWith(".csv")) {
       setError("Please select a CSV file");
       return;
@@ -26,7 +26,6 @@ function CSVUploader({ onSubmit }: CSVUploaderProps) {
     setFile(selectedFile);
     setError("");
 
-    // Read and parse the file
     try {
       const text = await selectedFile.text();
       const parsed = csvToReportData(text, date, commentary);
@@ -43,7 +42,6 @@ function CSVUploader({ onSubmit }: CSVUploaderProps) {
       return;
     }
 
-    // Update report data with current date and commentary
     const updatedData: ReportData = {
       ...reportData,
       date,
@@ -51,6 +49,18 @@ function CSVUploader({ onSubmit }: CSVUploaderProps) {
     };
 
     onSubmit(updatedData);
+  };
+
+  const handleEditInForm = () => {
+    if (!reportData || !onEditInForm) return;
+
+    const updatedData: ReportData = {
+      ...reportData,
+      date,
+      commentary,
+    };
+
+    onEditInForm(updatedData);
   };
 
   const handleDateChange = (newDate: string) => {
@@ -69,7 +79,6 @@ function CSVUploader({ onSubmit }: CSVUploaderProps) {
 
   return (
     <div className="space-y-6">
-      {/* File Upload Section */}
       <div className="space-y-4">
         <div>
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Upload CSV File</h3>
@@ -91,14 +100,12 @@ function CSVUploader({ onSubmit }: CSVUploaderProps) {
           )}
         </div>
 
-        {/* Error Message */}
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-md p-4">
             <p className="text-sm text-red-800">{error}</p>
           </div>
         )}
 
-        {/* Additional Information */}
         {reportData && (
           <div className="space-y-4 pt-4 border-t border-gray-200">
             <div className="grid grid-cols-2 gap-4">
@@ -137,14 +144,12 @@ function CSVUploader({ onSubmit }: CSVUploaderProps) {
         )}
       </div>
 
-      {/* Preview Section */}
       {reportData && (
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-gray-900">
             Data Preview ({reportData.exchanges.length} exchanges)
           </h3>
 
-          {/* Table Preview */}
           <div className="overflow-x-auto border border-gray-200 rounded-lg">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
@@ -202,11 +207,18 @@ function CSVUploader({ onSubmit }: CSVUploaderProps) {
             </table>
           </div>
 
-          {/* Generate Button */}
-          <div className="flex justify-end pt-4">
+          <div className="flex justify-between items-center pt-4">
+            {onEditInForm && (
+              <button
+                onClick={handleEditInForm}
+                className="px-6 py-3 bg-white text-indigo-600 font-medium rounded-md border-2 border-indigo-600 hover:bg-indigo-50 transition-colors"
+              >
+                ✏️ Edit in Form
+              </button>
+            )}
             <button
               onClick={handleGenerateReport}
-              className="px-6 py-3 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 transition-colors shadow-sm"
+              className="px-6 py-3 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 transition-colors shadow-sm ml-auto"
             >
               Generate PDF Report
             </button>

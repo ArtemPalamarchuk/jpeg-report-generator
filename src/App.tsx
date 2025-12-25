@@ -1,69 +1,65 @@
 import { useState } from "react";
-import DataInputForm from "./components/DataInputForm";
 import CSVUploader from "./components/CSVUploader";
-import { generateAndOpenReport } from "./utils/reportGenerator";
+import DataInputForm from "./components/DataInputForm";
+import { generateAndOpenReport } from "./utils/reportGenerator.ts";
 import type { ReportData } from "./types";
 
-type TabType = "manual" | "csv";
+type ViewMode = "csv" | "form";
 
 function App() {
-  const [activeTab, setActiveTab] = useState<TabType>("manual");
+  const [viewMode, setViewMode] = useState<ViewMode>("csv");
+  const [formData, setFormData] = useState<ReportData | undefined>(undefined);
 
-  const handleGenerateReport = (data: ReportData) => {
-    generateAndOpenReport(data);
+  const handleCSVToForm = (data: ReportData) => {
+    setFormData(data);
+    setViewMode("form");
+  };
+
+  const handleGenerateReport = async (data: ReportData) => {
+    await generateAndOpenReport(data);
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-8 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4">
-          <h1 className="text-4xl font-bold mb-2">Monthly Liquidity Report Generator</h1>
-          <p className="text-indigo-100">Create professional PDF reports for your trading data</p>
+      <div className="max-w-6xl mx-auto p-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Market Report Generator</h1>
+          <p className="text-gray-600">Upload CSV data or fill the form manually</p>
         </div>
-      </div>
 
-      {/* Tab Navigation */}
-      <div className="max-w-7xl mx-auto px-4 pt-8">
-        <div className="flex space-x-2 border-b border-gray-200">
-          <button
-            onClick={() => setActiveTab("manual")}
-            className={`px-6 py-3 font-medium text-sm transition-colors ${
-              activeTab === "manual"
-                ? "border-b-2 border-indigo-600 text-indigo-600"
-                : "text-gray-600 hover:text-gray-900"
-            }`}
-          >
-            📝 Manual Input
-          </button>
-          <button
-            onClick={() => setActiveTab("csv")}
-            className={`px-6 py-3 font-medium text-sm transition-colors ${
-              activeTab === "csv"
-                ? "border-b-2 border-indigo-600 text-indigo-600"
-                : "text-gray-600 hover:text-gray-900"
-            }`}
-          >
-            📄 CSV Upload
-          </button>
+        {/* Tab Navigation */}
+        <div className="mb-6 border-b border-gray-200">
+          <nav className="flex space-x-8">
+            <button
+              onClick={() => setViewMode("csv")}
+              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                viewMode === "csv"
+                  ? "border-indigo-600 text-indigo-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              📤 Upload CSV
+            </button>
+            <button
+              onClick={() => setViewMode("form")}
+              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                viewMode === "form"
+                  ? "border-indigo-600 text-indigo-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              ✏️ Manual Input
+            </button>
+          </nav>
         </div>
-      </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-lg shadow-md p-8">
-          {activeTab === "manual" ? (
-            <DataInputForm onSubmit={handleGenerateReport} />
+        {/* Content */}
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          {viewMode === "csv" ? (
+            <CSVUploader onSubmit={handleGenerateReport} onEditInForm={handleCSVToForm} />
           ) : (
-            <CSVUploader onSubmit={handleGenerateReport} />
+            <DataInputForm onSubmit={handleGenerateReport} initialData={formData} />
           )}
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div className="max-w-7xl mx-auto px-4 py-6 mt-8">
-        <div className="text-center text-gray-500 text-sm">
-          <p>Powered by JPEG Trading Team</p>
         </div>
       </div>
     </div>

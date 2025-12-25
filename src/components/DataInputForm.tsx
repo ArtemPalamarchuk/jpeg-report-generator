@@ -4,10 +4,11 @@ import { emptyReportData, exampleReportData } from "../data/sampleData";
 
 interface DataInputFormProps {
   onSubmit: (data: ReportData) => void;
+  initialData?: ReportData;
 }
 
-function DataInputForm({ onSubmit }: DataInputFormProps) {
-  const [formData, setFormData] = useState<ReportData>(emptyReportData);
+function DataInputForm({ onSubmit, initialData }: DataInputFormProps) {
+  const [formData, setFormData] = useState<ReportData>(initialData || emptyReportData);
 
   const loadExampleData = () => {
     setFormData(exampleReportData);
