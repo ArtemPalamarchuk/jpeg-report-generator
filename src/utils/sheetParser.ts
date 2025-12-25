@@ -19,43 +19,39 @@ interface SheetData {
   values: string[][];
 }
 
-export async function parseGoogleSheet(url: string): Promise<ReportData> {
-  console.log("🔍 Parsing Google Sheets...");
+interface CoinGeckoCoin {
+  id: string;
+  symbol: string;
+  name: string;
+}
 
+interface CoinGeckoSearchResponse {
+  coins: CoinGeckoCoin[];
+}
+
+export async function parseGoogleSheet(url: string): Promise<ReportData> {
   const sheetId = extractSheetId(url);
   if (!sheetId) {
     throw new Error("Invalid Google Sheets URL");
   }
 
-  console.log(`📊 Sheet ID: ${sheetId}`);
-
   try {
-    // Fetch all three sheets
-    console.log("\n📄 Fetching data from sheets:");
-
     const [liqData, balData, blurbData] = await Promise.all([
       fetchSheetData(sheetId, "Liq"),
       fetchSheetData(sheetId, "Bal"),
       fetchSheetData(sheetId, "Blurb"),
     ]);
 
-    console.log(`✅ Liq: ${liqData.values.length} rows`);
-    console.log(`✅ Bal: ${balData.values.length} rows`);
-    console.log(`✅ Blurb: ${blurbData.values.length} rows`);
-
-    // Parse each sheet
     const token = parseLiquiditySheet(liqData).token;
     const exchanges = parseLiquiditySheet(liqData).exchanges;
-    const balances = parseBalanceSheet(balData);
+    const balances = await parseBalanceSheet(balData);
     const blurbText = parseBlurbSheet(blurbData);
-
-    console.log(
-      `\n✅ Parsed: ${token}, ${exchanges.length} exchanges, ${balances.length} balances`,
-    );
+    const historicalPrices = await fetchHistoricalPrices(token);
+    const date = new Date().toISOString().split("T")[0];
 
     const reportData: ReportData = {
       token,
-      date: new Date().toISOString().split("T")[0],
+      date,
       commentary: blurbText,
       balances,
       exchanges,
@@ -65,7 +61,7 @@ export async function parseGoogleSheet(url: string): Promise<ReportData> {
         low: 0,
         close: 0,
       },
-      historicalPrices: [],
+      historicalPrices,
     };
 
     return reportData;
@@ -77,9 +73,6 @@ export async function parseGoogleSheet(url: string): Promise<ReportData> {
 
 async function fetchSheetData(sheetId: string, sheetName: string): Promise<SheetData> {
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetName}?key=${GOOGLE_API_KEY}`;
-
-  console.log(`  Fetching ${sheetName}...`);
-
   const response = await fetch(url);
 
   if (!response.ok) {
@@ -92,29 +85,21 @@ async function fetchSheetData(sheetId: string, sheetName: string): Promise<Sheet
 
 function parseLiquiditySheet(data: SheetData): { token: string; exchanges: ExchangeData[] } {
   const rows = data.values;
-
-  console.log("\n🏦 Parsing Liq sheet:");
-
-  // Row 0: Token
   const token = rows[0]?.[0]?.trim() || "";
-  console.log(`  Token: ${token}`);
-
-  // Row 1: Headers
   const headers = rows[1] || [];
+
   const colMap: Record<string, number> = {};
   headers.forEach((header, index) => {
     if (header) colMap[header.trim()] = index;
   });
 
-  // Rows 2+: Exchanges
   const exchanges: ExchangeData[] = [];
   for (let i = 2; i < rows.length; i++) {
     const row = rows[i];
     const venue = row[colMap["Exchange"]]?.trim();
-
     if (!venue) continue;
 
-    const exchange: ExchangeData = {
+    exchanges.push({
       venue,
       symbol: row[colMap["Symbol"]]?.trim() || "",
       jpegVolume: parseNumber(row[colMap["JPEG Volume ($)"]] || "0"),
@@ -124,48 +109,32 @@ function parseLiquiditySheet(data: SheetData): { token: string; exchanges: Excha
       liquidity2pct: parseNumber(row[colMap["2% Liquidity"]] || "0"),
       liquidityShare: parseNumber(row[colMap["2% Share"]] || "0"),
       avgSpread: parseNumber(row[colMap["Avg Spread (bps)"]] || "0"),
-    };
-
-    console.log(`  ✓ ${venue}`);
-    exchanges.push(exchange);
+    });
   }
 
   return { token, exchanges };
 }
 
-function parseBalanceSheet(data: SheetData): Balance[] {
+async function parseBalanceSheet(data: SheetData): Promise<Balance[]> {
   const rows = data.values;
+  if (rows.length === 0) return [];
 
-  console.log("\n💰 Parsing Bal sheet:");
-
-  if (rows.length === 0) {
-    console.log("  No balance data");
-    return [];
-  }
-
-  // Rows without headers - just data
-  // Column A: Entity, B: Asset, C: Amount, D: Date
   const balances: Balance[] = [];
 
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
-
-    // Column B = Asset (USDT, NEAR, etc)
     const asset = row[1]?.trim();
     if (!asset) continue;
 
-    // Column C = Amount
     const amount = parseNumber(row[2] || "0");
+    const price = await fetchCurrentPrice(asset);
 
-    const balance: Balance = {
+    balances.push({
       asset,
-      price: 0,
+      price,
       amount,
-      notional: 0, // Will be calculated when we have price
-    };
-
-    console.log(`  ✓ ${asset}: ${amount} (entity: ${row[0]})`);
-    balances.push(balance);
+      notional: price * amount,
+    });
   }
 
   return balances;
@@ -173,21 +142,65 @@ function parseBalanceSheet(data: SheetData): Balance[] {
 
 function parseBlurbSheet(data: SheetData): string {
   const rows = data.values;
+  if (rows.length === 0) return "";
 
-  console.log("\n📝 Parsing Blurb sheet:");
-
-  if (rows.length === 0) {
-    console.log("  No blurb data");
-    return "";
-  }
-
-  // Combine all cells into text
-  const text = rows
+  return rows
     .map((row) => row.join(" ").trim())
     .filter((line) => line.length > 0)
     .join("\n");
+}
 
-  console.log(`  ✓ ${text.length} characters`);
+async function fetchHistoricalPrices(
+  tokenSymbol: string,
+): Promise<Array<{ date: string; price: number }>> {
+  try {
+    const searchUrl = `https://api.coingecko.com/api/v3/search?query=${encodeURIComponent(tokenSymbol)}`;
+    const searchResponse = await fetch(searchUrl);
+    if (!searchResponse.ok) return [];
 
-  return text;
+    const searchData: CoinGeckoSearchResponse = await searchResponse.json();
+    const coin = searchData.coins?.find(
+      (c) => c.symbol?.toLowerCase() === tokenSymbol.toLowerCase(),
+    );
+    if (!coin) return [];
+
+    const chartUrl = `https://api.coingecko.com/api/v3/coins/${coin.id}/market_chart?vs_currency=usd&days=30&interval=daily`;
+    const chartResponse = await fetch(chartUrl);
+    if (!chartResponse.ok) return [];
+
+    const chartData = await chartResponse.json();
+    return (
+      chartData.prices?.map((point: [number, number]) => ({
+        date: new Date(point[0]).toISOString().split("T")[0],
+        price: point[1],
+      })) || []
+    );
+  } catch (error) {
+    console.error("Error fetching historical prices:", error);
+    return [];
+  }
+}
+
+async function fetchCurrentPrice(tokenSymbol: string): Promise<number> {
+  try {
+    const searchUrl = `https://api.coingecko.com/api/v3/search?query=${encodeURIComponent(tokenSymbol)}`;
+    const searchResponse = await fetch(searchUrl);
+    if (!searchResponse.ok) return 0;
+
+    const searchData: CoinGeckoSearchResponse = await searchResponse.json();
+    const coin = searchData.coins?.find(
+      (c) => c.symbol?.toLowerCase() === tokenSymbol.toLowerCase(),
+    );
+    if (!coin) return 0;
+
+    const priceUrl = `https://api.coingecko.com/api/v3/simple/price?ids=${coin.id}&vs_currencies=usd`;
+    const priceResponse = await fetch(priceUrl);
+    if (!priceResponse.ok) return 0;
+
+    const priceData = await priceResponse.json();
+    return priceData[coin.id]?.usd || 0;
+  } catch (error) {
+    console.error("Error fetching current price:", error);
+    return 0;
+  }
 }
