@@ -12,8 +12,6 @@ function SheetsImport({ onSuccess, onEditInForm }: SheetsImportProps) {
   const [reportData, setReportData] = useState<ReportData | null>(null);
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-  const [date, setDate] = useState<string>(new Date().toISOString().split("T")[0]);
-  const [commentary, setCommentary] = useState<string>("");
 
   const handleLoadSheet = async () => {
     if (!sheetsUrl.trim()) {
@@ -25,9 +23,8 @@ function SheetsImport({ onSuccess, onEditInForm }: SheetsImportProps) {
     setLoading(true);
 
     try {
-      const parsed = await parseGoogleSheet(sheetsUrl, date, commentary);
-      setReportData(parsed);
-      setCommentary(parsed.commentary || "");
+      const parsedReport = await parseGoogleSheet(sheetsUrl);
+      setReportData(parsedReport);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to parse Google Sheets");
       setReportData(null);
@@ -38,26 +35,12 @@ function SheetsImport({ onSuccess, onEditInForm }: SheetsImportProps) {
 
   const handleGenerateReport = () => {
     if (!reportData) return;
-
-    const updatedData: ReportData = {
-      ...reportData,
-      date,
-      commentary,
-    };
-
-    onSuccess(updatedData);
+    onSuccess(reportData);
   };
 
   const handleEditInForm = () => {
     if (!reportData || !onEditInForm) return;
-
-    const updatedData: ReportData = {
-      ...reportData,
-      date,
-      commentary,
-    };
-
-    onEditInForm(updatedData);
+    onEditInForm(reportData);
   };
 
   return (
@@ -109,7 +92,7 @@ function SheetsImport({ onSuccess, onEditInForm }: SheetsImportProps) {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Report Date</label>
                 <input
                   type="text"
-                  value={date}
+                  value={reportData.date}
                   disabled
                   className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-600"
                 />
@@ -128,7 +111,7 @@ function SheetsImport({ onSuccess, onEditInForm }: SheetsImportProps) {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Commentary</label>
               <div className="block w-full px-4 py-3 border border-gray-200 rounded-md bg-gray-50 text-sm text-gray-700 break-words leading-relaxed">
-                {commentary || <span className="text-gray-400 italic">No commentary</span>}
+                {reportData.commentary}
               </div>
             </div>
 

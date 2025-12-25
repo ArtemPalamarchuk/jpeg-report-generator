@@ -19,11 +19,7 @@ interface SheetData {
   values: string[][];
 }
 
-export async function parseGoogleSheet(
-  url: string,
-  date: string,
-  commentary: string = "",
-): Promise<ReportData> {
+export async function parseGoogleSheet(url: string): Promise<ReportData> {
   console.log("🔍 Parsing Google Sheets...");
 
   const sheetId = extractSheetId(url);
@@ -59,8 +55,8 @@ export async function parseGoogleSheet(
 
     const reportData: ReportData = {
       token,
-      date,
-      commentary: blurbText || commentary,
+      date: new Date().toISOString().split("T")[0],
+      commentary: blurbText,
       balances,
       exchanges,
       prices: {

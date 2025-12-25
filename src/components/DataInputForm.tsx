@@ -210,12 +210,14 @@ function DataInputForm({ onSubmit, initialData }: DataInputFormProps) {
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Commentary</label>
-          <textarea
-            value={formData.commentary || ""}
-            onChange={(e) => setFormData({ ...formData, commentary: e.target.value })}
-            rows={6}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-            placeholder="Enter commentary about market conditions and strategy..."
+          <div
+            contentEditable
+            suppressContentEditableWarning
+            onBlur={(e) =>
+              setFormData({ ...formData, commentary: e.currentTarget.textContent || "" })
+            }
+            dangerouslySetInnerHTML={{ __html: formData.commentary || "" }}
+            className="block w-full min-h-[120px] px-4 py-3 border border-gray-200 rounded-md bg-white text-sm text-gray-900 break-words leading-relaxed focus:ring-2 focus:ring-indigo-500 focus:outline-none"
           />
         </div>
       </div>
