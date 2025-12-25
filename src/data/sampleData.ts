@@ -39,8 +39,7 @@ export const emptyReportData: ReportData = {
 export const exampleReportData: ReportData = {
   token: "CAMP",
   date: "2025-12-04",
-  commentary:
-    "Crypto markets saw heavy swings this month, though CAMP balances stayed relatively flat compared to prior periods. PoV also remained steady, while liquidity share improved meaningfully—up roughly 20%—as we captured more flow during volatile sessions. We temporarily stopped quoting on MEXC due to solvency concerns and are continuously evaluating a return as exchange risk conditions develop.",
+  commentary: `Crypto markets saw heavy swings this month, though CAMP balances stayed relatively flat compared to prior periods. PoV also remained steady, while liquidity share improved meaningfully—up roughly 20%—as we captured more flow during volatile sessions. We temporarily stopped quoting on MEXC due to solvency concerns and are continuously evaluating a return as exchange risk conditions develop.`,
   balances: [
     {
       asset: "CAMP",
