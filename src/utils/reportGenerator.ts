@@ -71,7 +71,7 @@ export const generateAndOpenReport = (data: ReportData) => {
           if (!container) return;
 
           const totalHeightPx = container.getBoundingClientRect().height;
-          const COMPRESSION_FACTOR = 0.685; 
+          const COMPRESSION_FACTOR = 0.69; 
           const PX_TO_MM = 0.2646;
 
           const adjustedHeightPx = totalHeightPx * COMPRESSION_FACTOR;
@@ -97,8 +97,9 @@ export const generateAndOpenReport = (data: ReportData) => {
 
     const newWindow = window.open("", "_blank");
     if (newWindow) {
-      newWindow.document.write(fullHTML);
-      newWindow.document.close();
+      const blob = new Blob([fullHTML], { type: "text/html" });
+      const blobUrl = URL.createObjectURL(blob);
+      newWindow.location.href = blobUrl;
     } else {
       alert(
         "Please allow pop-ups to view the report.\n\nAlternatively, try using the 'Download HTML' option.",
