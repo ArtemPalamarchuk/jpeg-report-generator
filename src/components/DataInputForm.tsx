@@ -1,6 +1,6 @@
 import { FormEvent, useState } from "react";
 import type { ReportData, ExchangeData, Balance } from "../types.ts";
-import { emptyReportData, exampleReportData } from "../data/sampleData";
+import { emptyReportData } from "../data/sampleData";
 
 interface DataInputFormProps {
   onSubmit: (data: ReportData) => void;
@@ -9,10 +9,6 @@ interface DataInputFormProps {
 
 function DataInputForm({ onSubmit, initialData }: DataInputFormProps) {
   const [formData, setFormData] = useState<ReportData>(initialData || emptyReportData);
-
-  const loadExampleData = () => {
-    setFormData(exampleReportData);
-  };
 
   const handleNumericInput = (value: string): string => {
     const normalized = value.replace(",", ".");
@@ -178,13 +174,6 @@ function DataInputForm({ onSubmit, initialData }: DataInputFormProps) {
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-semibold text-gray-900">Basic Information</h3>
-          <button
-            type="button"
-            onClick={loadExampleData}
-            className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-md hover:bg-indigo-200 transition-colors text-sm font-medium"
-          >
-            Try Example Data
-          </button>
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
