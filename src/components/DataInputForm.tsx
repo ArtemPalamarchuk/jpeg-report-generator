@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import type { ReportData, ExchangeData, Balance } from "../types.ts";
 import { emptyReportData, exampleReportData } from "../data/sampleData";
 
@@ -7,7 +7,7 @@ interface DataInputFormProps {
 }
 
 function DataInputForm({ onSubmit }: DataInputFormProps) {
-  const [formData, setFormData] = useState<Partial<ReportData>>(emptyReportData);
+  const [formData, setFormData] = useState<ReportData>(emptyReportData);
 
   const loadExampleData = () => {
     setFormData(exampleReportData);
@@ -33,19 +33,61 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
     updateBalance(index, field, normalized);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleExchangeNumericChange = (
+    index: number,
+    field: "liquidity2pct" | "jpegLiquidity2pct" | "marketVolume" | "jpegVolume",
+    value: string,
+  ) => {
+    const normalized = handleNumericInput(value);
+    updateExchange(index, field, normalized);
+  };
+
+  const handlePriceChange = (field: "open" | "high" | "low" | "close", value: string) => {
+    const normalized = handleNumericInput(value);
+    setFormData({
+      ...formData,
+      prices: {
+        ...formData.prices,
+        [field]: normalized,
+      },
+    });
+  };
+
+  const parseNumericField = (value: string | number): number => {
+    return typeof value === "string" ? parseFloat(value) || 0 : value;
+  };
+
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (formData.token && formData.date) {
-      const dataToSubmit = {
+      onSubmit({
         ...formData,
         balances: formData.balances?.map((b) => ({
           asset: b.asset,
-          price: typeof b.price === "string" ? parseFloat(b.price) || 0 : b.price,
-          amount: typeof b.amount === "string" ? parseFloat(b.amount) || 0 : b.amount,
+          price: parseNumericField(b.price),
+          amount: parseNumericField(b.amount),
           notional: b.notional,
         })),
-      };
-      onSubmit(dataToSubmit as ReportData);
+        exchanges: formData.exchanges?.map((e) => ({
+          venue: e.venue,
+          symbol: e.symbol,
+          liquidity2pct: parseNumericField(e.liquidity2pct),
+          jpegLiquidity2pct: parseNumericField(e.jpegLiquidity2pct),
+          marketVolume: parseNumericField(e.marketVolume),
+          jpegVolume: parseNumericField(e.jpegVolume),
+          marketShare: e.marketShare,
+          liquidityShare: e.liquidityShare,
+          avgSpread: e.avgSpread,
+        })),
+        prices: formData.prices
+          ? {
+              open: parseNumericField(formData.prices.open),
+              high: parseNumericField(formData.prices.high),
+              low: parseNumericField(formData.prices.low),
+              close: parseNumericField(formData.prices.close),
+            }
+          : { open: 0, high: 0, low: 0, close: 0 },
+      });
     }
   };
 
@@ -88,13 +130,13 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
     const newExchange: ExchangeData = {
       venue: "",
       symbol: formData.token || "",
-      jpegVolume: 0,
-      marketVolume: 0,
+      jpegVolume: "" as never,
+      marketVolume: "" as never,
       marketShare: 0,
-      liquidity2pct: 0,
-      jpegLiquidity2pct: 0,
+      liquidity2pct: "" as never,
+      jpegLiquidity2pct: "" as never,
       liquidityShare: 0,
-      avgSpread: 0, // unused
+      avgSpread: 0,
     };
     setFormData({
       ...formData,
@@ -106,23 +148,18 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
     const newExchanges = [...(formData.exchanges || [])];
     newExchanges[index] = {
       ...newExchanges[index],
-      [field]:
-        typeof value === "string" && field !== "venue" && field !== "symbol"
-          ? parseFloat(value) || 0
-          : value,
+      [field]: value,
     };
 
     if (field === "jpegVolume" || field === "marketVolume") {
-      newExchanges[index].marketShare =
-        newExchanges[index].marketVolume > 0
-          ? (newExchanges[index].jpegVolume / newExchanges[index].marketVolume) * 100
-          : 0;
+      const jpegVol = parseFloat(String(newExchanges[index].jpegVolume)) || 0;
+      const marketVol = parseFloat(String(newExchanges[index].marketVolume)) || 0;
+      newExchanges[index].marketShare = marketVol > 0 ? (jpegVol / marketVol) * 100 : 0;
     }
     if (field === "jpegLiquidity2pct" || field === "liquidity2pct") {
-      newExchanges[index].liquidityShare =
-        newExchanges[index].liquidity2pct > 0
-          ? (newExchanges[index].jpegLiquidity2pct / newExchanges[index].liquidity2pct) * 100
-          : 0;
+      const jpegLiq = parseFloat(String(newExchanges[index].jpegLiquidity2pct)) || 0;
+      const totalLiq = parseFloat(String(newExchanges[index].liquidity2pct)) || 0;
+      newExchanges[index].liquidityShare = totalLiq > 0 ? (jpegLiq / totalLiq) * 100 : 0;
     }
 
     setFormData({ ...formData, exchanges: newExchanges });
@@ -303,10 +340,17 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
                     2% Liquidity
                   </label>
                   <input
-                    type="number"
+                    type="text"
                     value={exchange.liquidity2pct}
-                    onChange={(e) => updateExchange(index, "liquidity2pct", e.target.value)}
-                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                    onChange={(e) =>
+                      handleExchangeNumericChange(index, "liquidity2pct", e.target.value)
+                    }
+                    onBlur={(e) => {
+                      const formatted = formatNumericValue(e.target.value);
+                      updateExchange(index, "liquidity2pct", formatted);
+                    }}
+                    placeholder="0"
+                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                 </div>
                 <div>
@@ -314,10 +358,17 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
                     JPEG 2% Liquidity
                   </label>
                   <input
-                    type="number"
+                    type="text"
                     value={exchange.jpegLiquidity2pct}
-                    onChange={(e) => updateExchange(index, "jpegLiquidity2pct", e.target.value)}
-                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                    onChange={(e) =>
+                      handleExchangeNumericChange(index, "jpegLiquidity2pct", e.target.value)
+                    }
+                    onBlur={(e) => {
+                      const formatted = formatNumericValue(e.target.value);
+                      updateExchange(index, "jpegLiquidity2pct", formatted);
+                    }}
+                    placeholder="0"
+                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                 </div>
 
@@ -327,10 +378,17 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
                     Market Volume
                   </label>
                   <input
-                    type="number"
+                    type="text"
                     value={exchange.marketVolume}
-                    onChange={(e) => updateExchange(index, "marketVolume", e.target.value)}
-                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                    onChange={(e) =>
+                      handleExchangeNumericChange(index, "marketVolume", e.target.value)
+                    }
+                    onBlur={(e) => {
+                      const formatted = formatNumericValue(e.target.value);
+                      updateExchange(index, "marketVolume", formatted);
+                    }}
+                    placeholder="0"
+                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                 </div>
                 <div>
@@ -338,10 +396,17 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
                     JPEG Volume
                   </label>
                   <input
-                    type="number"
+                    type="text"
                     value={exchange.jpegVolume}
-                    onChange={(e) => updateExchange(index, "jpegVolume", e.target.value)}
-                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                    onChange={(e) =>
+                      handleExchangeNumericChange(index, "jpegVolume", e.target.value)
+                    }
+                    onBlur={(e) => {
+                      const formatted = formatNumericValue(e.target.value);
+                      updateExchange(index, "jpegVolume", formatted);
+                    }}
+                    placeholder="0"
+                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                 </div>
               </div>
@@ -357,73 +422,57 @@ function DataInputForm({ onSubmit }: DataInputFormProps) {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Open</label>
             <input
-              type="number"
-              step="0.000001"
-              value={formData.prices?.open || 0}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  prices: {
-                    ...formData.prices!,
-                    open: parseFloat(e.target.value) || 0,
-                  },
-                })
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              type="text"
+              value={formData.prices?.open || ""}
+              onChange={(e) => handlePriceChange("open", e.target.value)}
+              onBlur={(e) => {
+                const formatted = formatNumericValue(e.target.value);
+                handlePriceChange("open", formatted);
+              }}
+              placeholder="0.00"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">High</label>
             <input
-              type="number"
-              step="0.000001"
-              value={formData.prices?.high || 0}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  prices: {
-                    ...formData.prices!,
-                    high: parseFloat(e.target.value) || 0,
-                  },
-                })
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              type="text"
+              value={formData.prices?.high || ""}
+              onChange={(e) => handlePriceChange("high", e.target.value)}
+              onBlur={(e) => {
+                const formatted = formatNumericValue(e.target.value);
+                handlePriceChange("high", formatted);
+              }}
+              placeholder="0.00"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Low</label>
             <input
-              type="number"
-              step="0.000001"
-              value={formData.prices?.low || 0}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  prices: {
-                    ...formData.prices!,
-                    low: parseFloat(e.target.value) || 0,
-                  },
-                })
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              type="text"
+              value={formData.prices?.low || ""}
+              onChange={(e) => handlePriceChange("low", e.target.value)}
+              onBlur={(e) => {
+                const formatted = formatNumericValue(e.target.value);
+                handlePriceChange("low", formatted);
+              }}
+              placeholder="0.00"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Close</label>
             <input
-              type="number"
-              step="0.000001"
-              value={formData.prices?.close || 0}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  prices: {
-                    ...formData.prices!,
-                    close: parseFloat(e.target.value) || 0,
-                  },
-                })
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              type="text"
+              value={formData.prices?.close || ""}
+              onChange={(e) => handlePriceChange("close", e.target.value)}
+              onBlur={(e) => {
+                const formatted = formatNumericValue(e.target.value);
+                handlePriceChange("close", formatted);
+              }}
+              placeholder="0.00"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
           </div>
         </div>
