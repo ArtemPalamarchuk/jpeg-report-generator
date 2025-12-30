@@ -42,4 +42,5 @@ export interface ReportData {
   exchanges: ExchangeData[];
   prices: PriceData;
   historicalPrices: PricePoint[];
+  balanceWarning?: string;
 }

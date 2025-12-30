@@ -44,10 +44,16 @@ export async function parseGoogleSheet(url: string): Promise<ReportData> {
 
     const token = parseLiquiditySheet(liqData).token;
     const exchanges = parseLiquiditySheet(liqData).exchanges;
-    const balances = await parseBalanceSheet(balData);
+    const { balances, balanceDate } = await parseBalanceSheet(balData);
     const blurbText = parseBlurbSheet(blurbData);
     const historicalPrices = await fetchHistoricalPrices(token);
     const date = new Date().toISOString().split("T")[0];
+
+    // Check if balance date matches report date
+    let balanceWarning: string | undefined;
+    if (balanceDate && balanceDate !== date) {
+      balanceWarning = `⚠️ Balance data is outdated (dated: ${balanceDate})`;
+    }
 
     const reportData: ReportData = {
       token,
@@ -62,6 +68,7 @@ export async function parseGoogleSheet(url: string): Promise<ReportData> {
         close: 0,
       },
       historicalPrices,
+      balanceWarning,
     };
 
     return reportData;
@@ -115,16 +122,24 @@ function parseLiquiditySheet(data: SheetData): { token: string; exchanges: Excha
   return { token, exchanges };
 }
 
-async function parseBalanceSheet(data: SheetData): Promise<Balance[]> {
+async function parseBalanceSheet(
+  data: SheetData,
+): Promise<{ balances: Balance[]; balanceDate: string | null }> {
   const rows = data.values;
-  if (rows.length === 0) return [];
+  if (rows.length === 0) return { balances: [], balanceDate: null };
 
   const balances: Balance[] = [];
+  let balanceDate: string | null = null;
 
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
     const asset = row[1]?.trim();
     if (!asset) continue;
+
+    // Extract date from column D (index 3) if not already extracted
+    if (!balanceDate && row[3]) {
+      balanceDate = row[3].trim();
+    }
 
     const amount = parseNumber(row[2] || "0");
 
@@ -140,7 +155,7 @@ async function parseBalanceSheet(data: SheetData): Promise<Balance[]> {
     });
   }
 
-  return balances;
+  return { balances, balanceDate };
 }
 
 function parseBlurbSheet(data: SheetData): string {

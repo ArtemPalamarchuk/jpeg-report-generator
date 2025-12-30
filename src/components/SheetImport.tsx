@@ -87,6 +87,12 @@ function SheetsImport({ onSuccess, onEditInForm }: SheetsImportProps) {
               </p>
             </div>
 
+            {reportData.balanceWarning && (
+              <div className="bg-yellow-50 border border-yellow-300 rounded-md p-4">
+                <p className="text-sm text-yellow-800 font-medium">{reportData.balanceWarning}</p>
+              </div>
+            )}
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Report Date</label>
