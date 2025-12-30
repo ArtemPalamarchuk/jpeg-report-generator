@@ -291,7 +291,7 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
         .header-section {
           display: flex;
           gap: 0;
-          margin: 120px 36px;
+          margin: 0 36px;
         }
         
         .header-left {
@@ -376,11 +376,23 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
         .liquidity-statistics,
         .volume-statistics {
           padding: 0 36px;
-          margin-bottom: 120px;
+          margin-bottom: 0;
+        }
+        
+        .grid-spacer {
+          height: 120px;
+          width: 100%;
+          overflow: hidden;
+        }
+        
+        .grid-spacer img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
         }
         
         .reporting-prices {
-          padding: 0 36px 60px 36px;
+          padding: 120px 36px 60px 36px;
         }
         
         /* Section Headers */
@@ -588,6 +600,10 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
         <img src={images.logo} alt="JPEG Trading" />
       </div>
 
+      <div className="grid-spacer">
+        <img src={images.gridPattern} alt="" />
+      </div>
+
       <div className="header-section">
         <div className="header-left">
           <div className="date-badge">
@@ -610,6 +626,10 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
           <h2 className="commentary-title">Commentary from the JPEG Trading team</h2>
           <p className="commentary-text">{data.commentary}</p>
         </div>
+      </div>
+
+      <div className="grid-spacer">
+        <img src={images.gridPattern} alt="" />
       </div>
 
       <div className="balances-section">
@@ -650,6 +670,10 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
             <div className="table-footer-value">{formatCurrency(totalNotional)}</div>
           </div>
         </div>
+      </div>
+
+      <div className="grid-spacer">
+        <img src={images.gridPattern} alt="" />
       </div>
 
       <div className="liquidity-statistics">
@@ -694,6 +718,10 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
         </div>
       </div>
 
+      <div className="grid-spacer">
+        <img src={images.gridPattern} alt="" />
+      </div>
+
       <div className="volume-statistics">
         <div className="section-header">
           <div className="section-number">3</div>
@@ -718,9 +746,7 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
             <div className="exchange-header-cell">Venue</div>
             <div className="exchange-header-cell">Venue Volume</div>
             <div className="exchange-header-cell">JPEG Volume</div>
-            <div className="exchange-header-cell" style={{ letterSpacing: "-0.6px" }}>
-              Market Share by Venue
-            </div>
+            <div className="exchange-header-cell">Market Share by Venue</div>
           </div>
 
           {data.exchanges.map((exchange, idx) => (
