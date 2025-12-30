@@ -40,7 +40,22 @@ function SheetsImport({ onSuccess, onEditInForm }: SheetsImportProps) {
 
   const handleEditInForm = () => {
     if (!reportData || !onEditInForm) return;
-    onEditInForm(reportData);
+
+    // Calculate OHLC prices from historicalPrices if available
+    const calculatedPrices =
+      reportData.historicalPrices && reportData.historicalPrices.length > 0
+        ? {
+            open: reportData.historicalPrices[0].price,
+            close: reportData.historicalPrices[reportData.historicalPrices.length - 1].price,
+            high: Math.max(...reportData.historicalPrices.map((p) => p.price)),
+            low: Math.min(...reportData.historicalPrices.map((p) => p.price)),
+          }
+        : reportData.prices;
+
+    onEditInForm({
+      ...reportData,
+      prices: calculatedPrices,
+    });
   };
 
   return (
