@@ -145,7 +145,11 @@ function SheetsImport({ onSuccess, onEditInForm }: SheetsImportProps) {
                           </td>
                           <td className="px-3 py-2"></td>
                           <td className="px-3 py-2 text-sm text-right text-gray-900">
-                            ${balance.price.toLocaleString()}
+                            $
+                            {balance.price.toLocaleString(undefined, {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 6,
+                            })}
                           </td>
                           <td className="px-3 py-2 text-sm text-right text-gray-900">
                             {balance.amount.toLocaleString()}

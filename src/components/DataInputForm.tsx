@@ -95,6 +95,13 @@ function DataInputForm({ onSubmit, initialData }: DataInputFormProps) {
       [field]: value,
     };
 
+    if (field === "asset" && typeof value === "string") {
+      const isStablecoin = ["STABLES", "USDC", "USDT"].includes(value.toUpperCase());
+      if (isStablecoin) {
+        newBalances[index].price = 1.0;
+      }
+    }
+
     if (field === "price" || field === "amount") {
       const price = parseFloat(String(newBalances[index].price)) || 0;
       const amount = parseFloat(String(newBalances[index].amount)) || 0;
@@ -223,68 +230,79 @@ function DataInputForm({ onSubmit, initialData }: DataInputFormProps) {
             + Add Balance
           </button>
         </div>
-        {formData.balances?.map((balance, index) => (
-          <div key={index} className="grid grid-cols-4 gap-4 p-4 bg-gray-50 rounded-md relative">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Asset</label>
-              <input
-                type="text"
-                value={balance.asset || ""}
-                onChange={(e) => updateBalance(index, "asset", e.target.value)}
-                placeholder="BTC"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-              />
+        {formData.balances?.map((balance, index) => {
+          const isStablecoin = ["STABLES", "USDC", "USDT"].includes(
+            balance.asset?.toUpperCase() || "",
+          );
+
+          return (
+            <div key={index} className="grid grid-cols-4 gap-4 p-4 bg-gray-50 rounded-md relative">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Asset</label>
+                <input
+                  type="text"
+                  value={balance.asset || ""}
+                  onChange={(e) => updateBalance(index, "asset", e.target.value)}
+                  placeholder="BTC"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Price {isStablecoin && <span className="text-xs text-gray-500">(fixed)</span>}
+                </label>
+                <input
+                  type="text"
+                  value={balance.price}
+                  onChange={(e) => handleNumericChange(index, "price", e.target.value)}
+                  onBlur={(e) => {
+                    const formatted = formatNumericValue(e.target.value);
+                    updateBalance(index, "price", formatted);
+                  }}
+                  placeholder="0.00"
+                  disabled={isStablecoin}
+                  className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${isStablecoin ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
+                <input
+                  type="text"
+                  value={balance.amount}
+                  onChange={(e) => handleNumericChange(index, "amount", e.target.value)}
+                  onBlur={(e) => {
+                    const formatted = formatNumericValue(e.target.value);
+                    updateBalance(index, "amount", formatted);
+                  }}
+                  placeholder="0"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Notional (USD)
+                </label>
+                <input
+                  type="text"
+                  value={balance.notional === 0 ? "" : balance.notional.toFixed(2)}
+                  disabled
+                  placeholder="0.00"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600 cursor-not-allowed"
+                />
+              </div>
+              {formData.balances && formData.balances.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeBalance(index)}
+                  className="absolute top-2 right-2 text-red-600 hover:text-red-700 text-sm font-medium"
+                  title="Remove balance"
+                >
+                  ✕ Remove
+                </button>
+              )}
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Price</label>
-              <input
-                type="text"
-                value={balance.price}
-                onChange={(e) => handleNumericChange(index, "price", e.target.value)}
-                onBlur={(e) => {
-                  const formatted = formatNumericValue(e.target.value);
-                  updateBalance(index, "price", formatted);
-                }}
-                placeholder="0.00"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
-              <input
-                type="text"
-                value={balance.amount}
-                onChange={(e) => handleNumericChange(index, "amount", e.target.value)}
-                onBlur={(e) => {
-                  const formatted = formatNumericValue(e.target.value);
-                  updateBalance(index, "amount", formatted);
-                }}
-                placeholder="0"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Notional (USD)</label>
-              <input
-                type="text"
-                value={balance.notional === 0 ? "" : balance.notional.toFixed(2)}
-                disabled
-                placeholder="0.00"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600 cursor-not-allowed"
-              />
-            </div>
-            {formData.balances && formData.balances.length > 1 && (
-              <button
-                type="button"
-                onClick={() => removeBalance(index)}
-                className="absolute top-2 right-2 text-red-600 hover:text-red-700 text-sm font-medium"
-                title="Remove balance"
-              >
-                ✕ Remove
-              </button>
-            )}
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Exchanges */}

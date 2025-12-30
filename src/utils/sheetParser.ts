@@ -127,7 +127,10 @@ async function parseBalanceSheet(data: SheetData): Promise<Balance[]> {
     if (!asset) continue;
 
     const amount = parseNumber(row[2] || "0");
-    const price = await fetchCurrentPrice(asset);
+
+    // Set fixed price for stablecoins
+    const isStablecoin = ["STABLES", "USDC", "USDT"].includes(asset.toUpperCase());
+    const price = isStablecoin ? 1.0 : await fetchCurrentPrice(asset);
 
     balances.push({
       asset,
