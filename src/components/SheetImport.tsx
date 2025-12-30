@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { parseGoogleSheet } from "../utils/sheetParser.ts";
 import type { ReportData } from "../types";
+import { formatPrice } from "../utils/formatPrice.ts";
 
 interface SheetsImportProps {
   onSuccess: (data: ReportData) => void;
@@ -166,11 +167,7 @@ function SheetsImport({ onSuccess, onEditInForm }: SheetsImportProps) {
                           </td>
                           <td className="px-3 py-2"></td>
                           <td className="px-3 py-2 text-sm text-right text-gray-900">
-                            $
-                            {balance.price.toLocaleString(undefined, {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 6,
-                            })}
+                            {formatPrice(balance.price)}
                           </td>
                           <td className="px-3 py-2 text-sm text-right text-gray-900">
                             {balance.amount.toLocaleString()}
@@ -291,28 +288,27 @@ function SheetsImport({ onSuccess, onEditInForm }: SheetsImportProps) {
                   <div className="border border-gray-200 rounded-lg p-3 bg-gray-50">
                     <div className="text-xs font-medium text-gray-500 uppercase mb-1">Open</div>
                     <div className="text-lg font-semibold text-gray-900">
-                      ${reportData.historicalPrices[0].price.toFixed(3)}
+                      {formatPrice(reportData.historicalPrices[0].price)}
                     </div>
                   </div>
                   <div className="border border-gray-200 rounded-lg p-3 bg-gray-50">
                     <div className="text-xs font-medium text-gray-500 uppercase mb-1">High</div>
                     <div className="text-lg font-semibold text-gray-900">
-                      ${Math.max(...reportData.historicalPrices.map((p) => p.price)).toFixed(3)}
+                      {formatPrice(Math.max(...reportData.historicalPrices.map((p) => p.price)))}
                     </div>
                   </div>
                   <div className="border border-gray-200 rounded-lg p-3 bg-gray-50">
                     <div className="text-xs font-medium text-gray-500 uppercase mb-1">Low</div>
                     <div className="text-lg font-semibold text-gray-900">
-                      ${Math.min(...reportData.historicalPrices.map((p) => p.price)).toFixed(3)}
+                      {formatPrice(Math.min(...reportData.historicalPrices.map((p) => p.price)))}
                     </div>
                   </div>
                   <div className="border border-gray-200 rounded-lg p-3 bg-gray-50">
                     <div className="text-xs font-medium text-gray-500 uppercase mb-1">Close</div>
                     <div className="text-lg font-semibold text-gray-900">
-                      $
-                      {reportData.historicalPrices[
-                        reportData.historicalPrices.length - 1
-                      ].price.toFixed(3)}
+                      {formatPrice(
+                        reportData.historicalPrices[reportData.historicalPrices.length - 1].price,
+                      )}
                     </div>
                   </div>
                 </div>

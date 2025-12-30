@@ -2,6 +2,7 @@ import React from "react";
 import type { ReportData } from "../types";
 import { images } from "../utils/images-base64";
 import { fonts } from "../utils/fonts-base64";
+import { formatPrice } from "../utils/formatPrice";
 
 interface ReportTemplateProps {
   data: ReportData;
@@ -204,23 +205,6 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
       currency: "USD",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(num);
-  };
-
-  const formatPrice = (num: number) => {
-    if (num >= 1) {
-      return new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 3,
-      }).format(num);
-    }
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 3,
-      maximumFractionDigits: 6,
     }).format(num);
   };
 
