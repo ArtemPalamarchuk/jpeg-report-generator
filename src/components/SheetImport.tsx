@@ -257,6 +257,43 @@ function SheetsImport({ onSuccess, onEditInForm }: SheetsImportProps) {
               </div>
             )}
 
+            {reportData.historicalPrices && reportData.historicalPrices.length > 0 && (
+              <div className="pt-4">
+                <h4 className="text-sm font-semibold text-gray-900 mb-2">
+                  Reporting Prices (OHLC)
+                </h4>
+                <div className="grid grid-cols-4 gap-4">
+                  <div className="border border-gray-200 rounded-lg p-3 bg-gray-50">
+                    <div className="text-xs font-medium text-gray-500 uppercase mb-1">Open</div>
+                    <div className="text-lg font-semibold text-gray-900">
+                      ${reportData.historicalPrices[0].price.toFixed(3)}
+                    </div>
+                  </div>
+                  <div className="border border-gray-200 rounded-lg p-3 bg-gray-50">
+                    <div className="text-xs font-medium text-gray-500 uppercase mb-1">High</div>
+                    <div className="text-lg font-semibold text-gray-900">
+                      ${Math.max(...reportData.historicalPrices.map((p) => p.price)).toFixed(3)}
+                    </div>
+                  </div>
+                  <div className="border border-gray-200 rounded-lg p-3 bg-gray-50">
+                    <div className="text-xs font-medium text-gray-500 uppercase mb-1">Low</div>
+                    <div className="text-lg font-semibold text-gray-900">
+                      ${Math.min(...reportData.historicalPrices.map((p) => p.price)).toFixed(3)}
+                    </div>
+                  </div>
+                  <div className="border border-gray-200 rounded-lg p-3 bg-gray-50">
+                    <div className="text-xs font-medium text-gray-500 uppercase mb-1">Close</div>
+                    <div className="text-lg font-semibold text-gray-900">
+                      $
+                      {reportData.historicalPrices[
+                        reportData.historicalPrices.length - 1
+                      ].price.toFixed(3)}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="flex gap-3 pt-4">
               {onEditInForm && (
                 <button

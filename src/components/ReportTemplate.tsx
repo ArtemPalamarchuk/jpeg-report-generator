@@ -173,42 +173,17 @@ const PriceChart = ({ prices }: { prices: Array<{ date: string; price: number }>
 const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
   const totalNotional = data.balances.reduce((sum, b) => sum + b.notional, 0);
 
-  const getHistoricalPrices = () => {
-    if (data.historicalPrices && data.historicalPrices.length > 0) {
-      return data.historicalPrices;
-    }
+  const historicalPrices = data.historicalPrices || [];
 
-    const startDate = new Date(data.date);
-    const endDate = new Date(data.date);
-    startDate.setMonth(startDate.getMonth() - 1);
-
-    const points: Array<{ date: string; price: number }> = [];
-    const daysDiff = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-
-    for (let i = 0; i <= Math.min(daysDiff, 30); i++) {
-      const currentDate = new Date(startDate);
-      currentDate.setDate(startDate.getDate() + i);
-
-      const progress = i / Math.min(daysDiff, 30);
-      const basePrice = data.prices.open + (data.prices.close - data.prices.open) * progress;
-
-      const range = data.prices.high - data.prices.low;
-      const variation =
-        (Math.sin(i * 0.5) * 0.3 + Math.sin(i * 0.3) * 0.2 + Math.cos(i * 0.7) * 0.15) *
-        range *
-        0.3;
-      const price = Math.max(data.prices.low, Math.min(data.prices.high, basePrice + variation));
-
-      points.push({
-        date: currentDate.toISOString().split("T")[0],
-        price: parseFloat(price.toFixed(6)),
-      });
-    }
-
-    return points;
-  };
-
-  const historicalPrices = getHistoricalPrices();
+  const ohlcPrices =
+    historicalPrices.length > 0
+      ? {
+          open: historicalPrices[0].price,
+          close: historicalPrices[historicalPrices.length - 1].price,
+          high: Math.max(...historicalPrices.map((p) => p.price)),
+          low: Math.min(...historicalPrices.map((p) => p.price)),
+        }
+      : data.prices;
 
   const globalAvgLiquidity = data.exchanges.reduce((sum, e) => sum + e.liquidity2pct, 0);
   const jpegAvgLiquidity = data.exchanges.reduce((sum, e) => sum + e.jpegLiquidity2pct, 0);
@@ -768,19 +743,19 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
 
         <div className="stats-grid" style={{ gridTemplateColumns: "repeat(4, 1fr)" }}>
           <div className="price-card">
-            <div className="stat-value">{formatPrice(data.prices.open)}</div>
+            <div className="stat-value">{formatPrice(ohlcPrices.open)}</div>
             <div className="stat-label">Open Price</div>
           </div>
           <div className="price-card">
-            <div className="stat-value">{formatPrice(data.prices.high)}</div>
+            <div className="stat-value">{formatPrice(ohlcPrices.high)}</div>
             <div className="stat-label">High Price</div>
           </div>
           <div className="price-card">
-            <div className="stat-value">{formatPrice(data.prices.low)}</div>
+            <div className="stat-value">{formatPrice(ohlcPrices.low)}</div>
             <div className="stat-label">Low Price</div>
           </div>
           <div className="price-card">
-            <div className="stat-value">{formatPrice(data.prices.close)}</div>
+            <div className="stat-value">{formatPrice(ohlcPrices.close)}</div>
             <div className="stat-label">Close Price</div>
           </div>
         </div>
