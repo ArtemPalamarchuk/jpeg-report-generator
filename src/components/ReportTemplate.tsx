@@ -718,7 +718,9 @@ const ReportTemplate: React.FC<ReportTemplateProps> = ({ data }) => {
             <div className="exchange-header-cell">Venue</div>
             <div className="exchange-header-cell">Venue Volume</div>
             <div className="exchange-header-cell">JPEG Volume</div>
-            <div className="exchange-header-cell">Market Share by Venue</div>
+            <div className="exchange-header-cell" style={{ letterSpacing: "-0.6px" }}>
+              Market Share by Venue
+            </div>
           </div>
 
           {data.exchanges.map((exchange, idx) => (
